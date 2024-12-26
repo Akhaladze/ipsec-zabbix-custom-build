@@ -1,0 +1,291 @@
+---
+- hosts: zabbix_servers
+  become: true
+  vars_files:
+    - ./../zabbix-server.env
+  tasks:
+
+    - name: Install chrony
+      apt:
+        name: chrony
+        state: present
+
+    - name: Run service - chrony
+      service:
+        name: chrony
+        state: started
+        enabled: yes
+
+    - name: Awiat for time sync
+      command: chronyc waitsync 5
+      register: chrony_sync
+      until: chrony_sync.rc == 0
+      retries: 5
+      delay: 10
+
+    - name: Update OS packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+      when: chrony_sync.rc == 0
+      become: true
+      become_user: root
+
+    - name: Install depended packages for {{ serviceName }}
+      apt:
+        update_cache: yes
+        name: "{{ item }}"
+        state: present
+      loop:
+        - mariadb-server
+        - mariadb-client
+        - nginx
+        - php
+        - php-mysql
+        - php8.1-fpm
+        - snmp
+        - php-gd
+        - php-xml
+        - php-bcmath
+        - php-mbstring
+        - php-ldap
+        - php-net-socket
+        - wget
+        - mc
+        - curl
+        - nmap
+        - ufw
+        
+
+
+    - name: Allow port 8080
+      ufw:
+        rule: allow
+        port: 8080
+        proto: tcp
+      become: true
+
+    - name: Allow port 10050 (Zabbix Agent)
+      ufw:
+        rule: allow
+        port: 10050
+        proto: tcp
+      become: true
+      
+    - name: Allow port 10051 (Zabbix Agent) 
+      ufw:
+        rule: allow
+        port: 10051
+        proto: tcp
+
+    - name: Allow port 22 (SSH)
+      ufw:
+        rule: allow
+        port: 22
+        proto: tcp
+
+    - name: Allow port 162 (SNMP)
+      ufw:
+        rule: allow
+        port: 162
+        proto: udp
+  
+    - name: Allow port 3000 (Grafana HTTP)
+      ufw:
+        rule: allow
+        port: 3000
+        proto: tcp
+
+    - name: Enable ufw
+      ufw:
+        state: enabled
+        policy: allow
+
+    - name: Restart ufw
+      command: ufw reload
+  
+
+    - name: Download Zabbix 7.0 LTS
+      get_url:
+        url: "https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest+ubuntu22.04_all.deb"
+        dest: "/tmp/zabbix-release_latest+ubuntu22.04_all.deb"
+      become: true
+
+    - name: Install Zabbix 7.0 LTS
+      apt:
+        deb: "/tmp/zabbix-release_latest+ubuntu22.04_all.deb"
+      register: install_zabbix_server
+      ignore_errors: true
+      become: true
+
+    - name:  Update system packages
+      apt:
+        update_cache: yes
+      become: true
+
+    - name: Install Zabbix server
+      apt:
+        name:
+          - zabbix-server-mysql
+          - zabbix-frontend-php
+          - zabbix-sql-scripts
+          - zabbix-agent
+          - zabbix-nginx-conf
+        state: present
+      become: true
+
+
+    - name: Install PyMySQL for Python 3
+      apt:
+        name: python3-pymysql
+        state: present
+
+    - name: DB creation (Unix socket)
+      shell: |
+        echo "CREATE DATABASE IF NOT EXISTS zabbix character set utf8mb4 collate utf8mb4_bin;" | mysql --user=root
+      become: true
+      become_user: root
+
+    - name: Create DB user (Unix socket)
+      shell: |
+        echo "CREATE USER IF NOT EXISTS 'zabbix'@'localhost' IDENTIFIED BY '{{ dbPassword }}'; GRANT ALL PRIVILEGES ON zabbix.* TO 'zabbix'@'localhost'; set global log_bin_trust_function_creators = 1;" | mysql --user=root
+      become: true
+      become_user: root
+
+#    - name: Import Zabbix DB Schema
+#      community.mysql.mysql_db:
+#        name: zabbix
+#        state: import
+#        target: /usr/share/zabbix-sql-scripts/mysql/server.sql.gz
+#        login_user: zabbix
+#        login_password: "{{ dbPassword }}"
+#        login_host: localhost
+#    - name: Import Zabbix DB Schema
+#      community.mysql.mysql_db:
+#        name: zabbix
+#        state: import
+#        target: /usr/share/zabbix-sql-scripts/mysql/server.sql.gz
+#        login_user: zabbix
+#        login_password: "{{ dbPassword }}"
+#        login_host: localhost
+    - name: Import DB Schema for Zabbix server
+      shell: |
+        zcat /usr/share/zabbix-sql-scripts/mysql/server.sql.gz | mysql --default-character-set=utf8mb4 -u zabbix -p'{{ dbPassword }}' zabbix
+      args:
+        executable: /bin/bash
+      register: import_result
+      ignore_errors: true
+
+    - name: Check if the import encountered 'already exists' error
+      fail:
+        msg: "DB import failed with an unexpected error: {{ import_result.stderr }}"
+      when: "'ERROR 1050' not in import_result.stderr and import_result.rc != 0"
+
+    - name: Disable log_bin_trust_function_creators option after importing database schema.
+      shell: |
+        echo "set global log_bin_trust_function_creators = 0;" | mysql --user=root
+      become: true
+      become_user: root
+
+    - name: Create zabbix server configuration file
+      copy:
+        dest: /etc/zabbix/zabbix_server.conf
+        content: |
+          ListenPort=10051
+          LogFile=/var/log/zabbix/zabbix_server.log
+          LogFileSize=0
+          PidFile=/run/zabbix/zabbix_server.pid
+          DBHost=localhost
+          DBName=zabbix
+          DBUser=zabbix
+          DBPassword=Password2023!
+          SNMPTrapperFile=/var/log/snmptrap/snmptrap.log
+          StatsAllowedIP=127.0.0.1,192.168.124.0/24,10.10.100.0/24
+          EnableGlobalScripts=1
+        owner: root
+        group: root
+        mode: '0644'
+            
+    - name: Create zabbix.conf.php
+      copy:
+        dest: /etc/zabbix/web/zabbix.conf.php
+        content: |
+          <?php
+          // Zabbix GUI configuration file.
+
+          $DB['TYPE']			= 'MYSQL';
+          $DB['SERVER']			= 'localhost';
+          $DB['PORT']			= '0';
+          $DB['DATABASE']			= '{{ dbName }}';
+          $DB['USER']			= 'zabbix';
+          $DB['PASSWORD']			= '{{ dbPassword }}';
+
+          // Schema name. Used for PostgreSQL.
+          $DB['SCHEMA']			= '';
+
+          // Used for TLS connection.
+          $DB['ENCRYPTION']		= false;
+          $DB['KEY_FILE']			= '';
+          $DB['CERT_FILE']		= '';
+          $DB['CA_FILE']			= '';
+          $DB['VERIFY_HOST']		= false;
+          $DB['CIPHER_LIST']		= '';
+
+          // Vault configuration. Used if database credentials are stored in Vault secrets manager.
+          $DB['VAULT']			= '';
+          $DB['VAULT_URL']		= '';
+          $DB['VAULT_DB_PATH']		= '';
+          $DB['VAULT_TOKEN']		= '';
+          $DB['VAULT_CERT_FILE']		= '';
+          $DB['VAULT_KEY_FILE']		= '';
+          // $DB['VAULT_CACHE']		= true;
+          // Uncomment and set to desired values to override Zabbix hostname/IP and port.
+          // $ZBX_SERVER			= '';
+          // $ZBX_SERVER_PORT		= '';
+
+          $ZBX_SERVER_NAME		= '{{ serverName }}';
+          $IMAGE_FORMAT_DEFAULT	= IMAGE_FORMAT_PNG;
+        owner: root
+        group: root
+        mode: '0644'
+    - name: Change listen and server_name в /etc/zabbix/nginx.conf
+      lineinfile:
+        path: /etc/zabbix/nginx.conf
+        regexp: '^#\s*(listen\s+\d+;)'
+        line: 'listen 8080;'
+        state: present
+      notify: Restart Nginx
+
+    - name: Change server_name в /etc/zabbix/nginx.conf
+      lineinfile:
+        path: /etc/zabbix/nginx.conf
+        regexp: '^#\s*(server_name\s+.+;)'
+        line: 'server_name example.com;'
+        state: present
+      notify: Restart Nginx
+    
+    - name: Restart ufw
+      command: ufw reload
+    
+    - name: Disable apache2
+      service:
+        name: apache2
+        state: stopped
+        enabled: no
+      become: true
+
+    
+    - name: Restart Nginx
+      systemd:
+        name: nginx
+        state: restarted
+        
+
+
+  handlers:
+    - name: Restart Nginx
+      systemd:
+        name: nginx
+        state: restarted
+  
+

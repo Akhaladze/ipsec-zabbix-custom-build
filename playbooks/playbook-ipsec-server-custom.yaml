@@ -1,0 +1,236 @@
+---
+- name: Set up VPN with strongSwan on Ubuntu 22.04
+  hosts: zabbix_servers
+  become: true
+  vars_files:
+    - ./../zabbix-server-ipsec-custom.env
+    - ./../zabbix-server.env
+  tasks:
+
+    - name: Modify sudoers file to allow NOPASSWD for all
+      lineinfile:
+        path: /etc/sudoers
+        regexp: '^%sudo ALL=\(ALL:ALL\) ALL$'
+        line: '%sudo ALL=(ALL:ALL) NOPASSWD: ALL'
+
+    - name: Update system packages
+      apt:
+        update_cache: yes
+        name: "{{ item }}"
+        state: present
+      loop:
+          - astyle
+          - iptables
+          - cmake
+          - gcc
+          - ninja-build
+          - libssl-dev
+          - python3-pytest-xdist
+          - unzip
+          - xsltproc
+          - doxygen
+          - graphviz
+          - python3-yaml
+          - valgrind
+          - openssl
+          - libssl-dev
+          - curl
+          - mc
+          - nmap
+          - net-tools
+          - git
+          - wget
+          - libsqlite3-dev
+          - sqlite3
+          - pkg-config
+          - build-essential
+          - libgmp-dev
+          - libcurl4-openssl-dev
+          - libsystemd-dev
+          - libgcrypt20-dev
+          - libip4tc-dev
+          - debhelper
+          - devscripts
+          - dh-make
+          - libmysqlclient-dev
+          - libmysqlcppconn-dev
+
+    - name: Download StrongSwan source package
+      get_url:
+        url: "https://download.strongswan.org/strongswan-{{ IPSEC_VER }}.tar.bz2"
+        dest: "/tmp/strongswan-{{ IPSEC_VER }}.tar.bz2"
+
+    - name: Extract StrongSwan source package
+      unarchive:
+        src: "/tmp/strongswan-{{ IPSEC_VER }}.tar.bz2"
+        dest: "~"
+        remote_src: yes
+
+    - name: Configure StrongSwan build
+      command: |
+        ./configure --prefix=/usr --sysconfdir=/etc --libexecdir=/usr/libexec --with-systemdsystemunitdir=/usr/lib/systemd/system \
+            --enable-sql \
+            --enable-sqlite \
+            --enable-attr-sql \
+            --enable-systemd \
+            --enable-sha1 \
+            --enable-openssl \
+            --enable-charon \
+            --enable-dhcp \
+            --enable-random \
+            --enable-eap-mschapv2 \
+            --enable-curl \
+            --enable-gcrypt \
+            --enable-connmark \
+            --enable-chapoly \
+            --enable-stroke \
+            --enable-starter \
+            --enable-pkcs11 \
+            --disable-tpm \
+            --enable-test-vectors \
+            --enable-rdrand \
+            --enable-socket-default
+      args:
+        chdir: "~/strongswan-{{ IPSEC_VER }}"
+    
+    - name: Build and install StrongSwan
+      shell: |
+        make && make install
+      args:
+        chdir: "~/strongswan-{{ IPSEC_VER }}"
+    
+    - name: Create ipsec.db
+      shell: |
+        sqlite3 /usr/lib/ipsec/ipsec.db < /usr/share/strongswan/templates/database/sql/sqlite.sql && \
+        chown root:root /usr/lib/ipsec/ipsec.db && \
+        chmod 777 /usr/lib/ipsec/ipsec.db
+
+    - name: Update /etc/strongswan.conf
+      copy:
+        dest: "/etc/strongswan.conf"
+        content: |
+          charon {
+            load = random nonce openssl pem pkcs1 curl revocation stroke sql dhcp sqlite attr-sql kernel-netlink socket-default updown
+
+            plugins {
+              attr-sql {
+                database = sqlite:///usr/lib/ipsec/ipsec.db
+                load = yes
+                lease_history = yes
+              }
+              sqlite {
+                database = sqlite:///usr/lib/ipsec/ipsec.db
+                load = yes
+              }
+              dhcp {
+                  identity_lease = yes
+              }
+            }
+          }
+
+          pool {
+            load = sqlite
+          }
+
+    - name: Create ipsec.conf
+      copy:
+        dest: /etc/ipsec.conf
+        content: |
+          config setup
+            charondebug="ike 1, knl 1, net 1, enc 1, cfg 1"
+
+          conn %default
+            ike=aes256-sha256-modp3072,aes128-sha256-ecp256
+            esp=aes256-sha256,aes128-sha256
+            keyexchange=ikev2
+            authby=psk
+            dpdaction=restart
+            dpddelay=15s
+            dpdtimeout=60s
+
+
+          conn myvpn
+            left=193.201.217.126
+            leftid=193.201.217.126
+            leftsubnet=193.201.217.126/32
+            leftauth=psk
+            right=%any
+            rightsourceip=%dhcp-pool
+            auto=add
+
+    - name: Create ipsec.secrets file
+      copy:
+        dest: /etc/ipsec.secrets
+        content: |
+          : PSK "{{ psk_key }}"
+        mode: '0600'
+    - name: Add Env path to /usr/libexec/ipsec
+      shell: |
+        echo "export PATH=$PATH:/usr/libexec/ipsec" >> /etc/profile
+
+    - name: Add USER Env path to /usr/libexec/ipsec
+      shell: |
+        echo "export PATH=$PATH:/usr/libexec/ipsec" >> ~/.bashrc
+
+    - name: add dhcp pool
+      shell: |
+          export PATH=$PATH:/usr/libexec/ipsec
+          ipsec pool --add dhcp-pool --start 172.16.16.1 --end 172.16.19.254 --timeout 0
+      ignore_errors: true
+
+    - name: Enable IP forwarding
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: '1'
+        state: present
+      become: true
+      become_user: root
+      ignore_errors: true
+
+    - name: Apply sysctl changes
+      command: sysctl -p
+      become: true
+      become_user: root
+      ignore_errors: true
+
+    - name: Add iptables rules for strongSwan 500
+      iptables:
+        chain: INPUT
+        in_interface: "{{ ansible_default_ipv4.interface }}"
+        protocol: udp
+        destination_port: 500
+        jump: ACCEPT
+        #notify: restart iptables
+      ignore_errors: true
+    
+    - name: Add iptables rules for strongSwan 4500
+      iptables:
+        chain: INPUT
+        in_interface: "{{ ansible_default_ipv4.interface }}"
+        protocol: udp
+        destination_port: 4500
+        jump: ACCEPT
+        #notify: restart iptables
+      ignore_errors: true
+
+    - name: Enable strongSwan service
+      service:
+        name: strongswan
+        state: started
+        enabled: yes
+      ignore_errors: true
+    
+    - name: Enable strongSwan starter service
+      service:
+        name: strongswan-starter
+        state: stopped
+        enabled: yes
+      ignore_errors: true
+
+    - name: Disable ufw
+      service:
+        name: ufw
+        state: stopped
+        enabled: no
+      ignore_errors: true
+    

@@ -1,0 +1,120 @@
+---
+- hosts: zabbix_servers
+  become: true
+  vars_files:
+    - ./../zabbix-server.env
+  tasks:
+    - name: Update packages
+      apt:
+        update_cache: yes
+
+    - name: Add GPG key for Grafana
+      apt_key:
+        url: https://packages.grafana.com/gpg.key
+        state: present
+
+    - name: Add Grafana apt_repository
+      apt_repository:
+        repo: "deb https://packages.grafana.com/oss/deb stable main"
+        state: present
+    - name: Update packages
+      apt:
+        update_cache: yes
+        
+    - name: Install Grafana
+      apt:
+        name: grafana
+        state: present
+
+    - name: Install Zabbix plugin for Grafana
+      grafana_plugin:
+        name: alexanderzobnin-zabbix-app
+        state: present
+
+    - name: Start service for Grafana
+      service:
+        name: grafana-server
+        state: started
+        enabled: yes
+
+    - name: Await starting Grafana
+      wait_for:
+        host: 127.0.0.1
+        port: 3000
+        delay: 10
+        timeout: 60
+        state: started
+    - name: Reset Grafana admin password using grafana-cli
+      command: grafana-cli --homepath "/usr/share/grafana" admin reset-admin-password "{{ grafana_admin_password }}"
+      environment:
+        GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_admin_password }}"
+
+    - name: Create Service Account
+      uri:
+        url: "http://{{ server_ip }}:3000/api/serviceaccounts"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Basic YWRtaW46RnJkZmtmeXUyMDIzIQ=="
+        body: |
+          {
+            "name": "automation_service_account2",
+            "role": "Admin"
+          }
+        body_format: json
+        user: "admin"
+        password: "Frdfkfyu2023!"
+        status_code: 
+          - 200
+          - 201
+      register: service_account_response
+      ignore_errors: true
+      
+
+    - name: Save Service Account ID
+      set_fact:
+        service_account_id: "{{ service_account_response.json.id }}"
+      ignore_errors: true
+
+    - name: Debug Service Account ID
+      debug:
+        msg: "Service Account ID: {{ service_account_id }}"
+      ignore_errors: true
+        
+
+    - name: Setting up Zabbix in Grafana
+      uri:
+        url: "http://localhost:3000/api/datasources"
+        method: POST
+        body_format: json
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Basic YWRtaW46RnJkZmtmeXUyMDIzIQ=="
+        body: |
+          {
+            "name": "Zabbix",
+            "type": "alexanderzobnin-zabbix-datasource",
+            "url": "{{ api_url }}",
+            "access": "proxy",
+            "basicAuth": false,
+            "jsonData": {
+              "username": "{{ api_user }}",
+              "password": "{{ api_password }}"
+            }
+          }
+        status_code: 200
+      ignore_errors: true 
+
+    - name: Restart Grafana
+      service:
+        name: grafana-server
+        state: restarted
+        
+ #   - name: Import Grafana Dashboard
+ #     community.grafana.grafana_dashboard:
+ #       grafana_url: "http://localhost:3000/api/dashboards"
+ #       grafana_api_key: "{{ grafana_api_token }}"
+ #       state: present
+ #       commit_message: Updated by ansible
+ #       overwrite: true
+ #       path: "dashboard-grafana.json"

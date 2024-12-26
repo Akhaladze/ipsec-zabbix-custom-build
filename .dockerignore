@@ -1,0 +1,7 @@
+.gitignore
+.dockerignore
+zabbix-server.env
+.venv
+.vscode
+.env
+zabbix-agent.env

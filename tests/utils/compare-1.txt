@@ -1,0 +1,5 @@
+name     address         status   start                 end                   identity
+dhcp-pool 172.16.16.1     online   Dec 19 13:46:50 2024                        client-52-54-00-f3-76-2d
+dhcp-pool 172.16.16.2     online   Dec 19 13:46:51 2024                        client-52-54-00-c2-15-38
+dhcp-pool 172.16.16.3     online   Dec 19 13:47:46 2024                        client-52-54-00-f3-75-01
+dhcp-pool 172.16.16.4     online   Dec 19 13:47:47 2024                        client-52-54-00-f0-00-00

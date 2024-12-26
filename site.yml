@@ -1,0 +1,8 @@
+---
+- name: Example playbook
+  hosts: localhost
+  roles:
+    - role: build_ipsec_vpn
+      vars:
+        vpn_name: "my_vpn"
+        vpn_subnet: ""

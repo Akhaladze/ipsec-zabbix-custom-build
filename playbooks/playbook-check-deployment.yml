@@ -1,0 +1,172 @@
+---
+- name: Update Auto Discovery Action in Zabbix
+  hosts: zabbix_servers
+  vars:
+    api_url: "http://10.10.100.13:8080/api_jsonrpc.php"
+    api_user: "Admin"
+    api_password: "zabbix"
+    action_name: "Auto discovery. Linux servers."
+    template_name: "Pi Node by Zabbix agent"
+  tasks:
+    - name: Authenticate with Zabbix API
+      uri:
+        url: "{{ api_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "jsonrpc": "2.0",
+            "method": "user.login",
+            "params": {
+              "username": "{{ api_user }}",
+              "password": "{{ api_password }}"
+            },
+            "id": 1
+          }
+        body_format: json
+      register: auth_response
+
+    - name: Fail if authentication fails
+      fail:
+        msg: "Authentication failed: {{ auth_response.json.error.data }}"
+      when: auth_response.json.error is defined
+
+    - name: Get Action ID
+      uri:
+        url: "{{ api_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "jsonrpc": "2.0",
+            "method": "action.get",
+            "params": {
+              "output": ["actionid", "name"],
+              "filter": {
+                "name": ["{{ action_name }}"]
+              }
+            },
+            "auth": "{{ auth_response.json.result }}",
+            "id": 2
+          }
+        body_format: json
+      register: action_response
+
+    - name: Fail if action not found
+      fail:
+        msg: "Action '{{ action_name }}' not found."
+      when: action_response.json.result | length == 0
+
+    - name: Set actionid fact
+      set_fact:
+        action_id: "{{ action_response.json.result[0].actionid }}"
+
+    - name: Enable the action
+      uri:
+        url: "{{ api_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "jsonrpc": "2.0",
+            "method": "action.update",
+            "params": {
+              "actionid": "{{ action_id }}",
+              "status": 0
+            },
+            "auth": "{{ auth_response.json.result }}",
+            "id": 3
+          }
+        body_format: json
+      register: enable_action_response
+
+    - name: Get template ID
+      uri:
+        url: "{{ api_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "jsonrpc": "2.0",
+            "method": "template.get",
+            "params": {
+              "output": ["templateid"],
+              "filter": {
+                "host": ["{{ template_name }}"]
+              }
+            },
+            "auth": "{{ auth_response.json.result }}",
+            "id": 4
+          }
+        body_format: json
+      register: template_response
+
+    - name: Set templateid fact
+      set_fact:
+        template_id: "{{ template_response.json.result[0].templateid }}"
+
+    - name: Update action operations
+      uri:
+        url: "{{ api_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "jsonrpc": "2.0",
+            "method": "action.update",
+            "params": {
+              "actionid": "{{ action_id }}",
+              "operations": [
+                {
+                  "operationtype": 6,
+                  "optemplate": [
+                    {
+                      "templateid": "{{ template_id }}"
+                    }
+                  ]
+                }
+              ]
+            },
+            "auth": "{{ auth_response.json.result }}",
+            "id": 5
+          }
+        body_format: json
+      register: update_operations_response
+
+    - name: Remove condition rule 2
+      uri:
+        url: "{{ api_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "jsonrpc": "2.0",
+            "method": "action.update",
+            "params": {
+              "actionid": "{{ action_id }}",
+              "filter": {
+                "evaltype": 1,
+                "conditions": [
+                  {
+                    "conditiontype": 1,
+                    "operator": 2,
+                    "value": ""
+                  }
+                ]
+              }
+            },
+            "auth": "{{ auth_response.json.result }}",
+            "id": 6
+          }
+        body_format: json
+      register: remove_condition_response
+
+    - name: Debug action update
+      debug:
+        msg: "Action '{{ action_name }}' updated successfully."

@@ -1,0 +1,62 @@
+  
+---
+  - name: Authenticate with Zabbix API
+    uri:
+      url: "{{ api_url }}"
+      method: POST
+      headers:
+        Content-Type: "application/json"
+      body: |
+        {
+          "jsonrpc": "2.0",
+          "method": "user.login",
+          "params": {
+            "username": "{{ api_user }}",
+            "password": "{{ api_password }}"
+          },
+          "id": 1
+        }
+      body_format: json
+    register: auth_response
+
+  - name: Fail if authentication fails
+    fail:
+      msg: "Authentication failed: {{ auth_response.json.error.data }}"
+    when: auth_response.json.error is defined
+
+  - name: Create Discovery Rule
+    uri:
+      url: "{{ api_url }}"
+      method: POST
+      headers:
+        Content-Type: "application/json"
+      body: |
+        {
+          "jsonrpc": "2.0",
+          "method": "drule.create",
+          "params": {
+            "name": "{{ discovery_name }}",
+            "iprange": "{{ ip_range }}",
+            "dchecks": [
+              {
+                "type": 0,
+                "key_": "{{ discovery_key }}",
+                "ports": "10050",
+                "uniq": 0
+              }
+            ]
+          },
+          "auth": "{{ auth_response.json.result }}",
+          "id": 2
+        }
+      body_format: json
+    register: create_rule_response
+
+  - name: Fail if rule creation fails
+    fail:
+      msg: "Failed to create discovery rule: {{ create_rule_response.json.error.data }}"
+    when: create_rule_response.json.error is defined
+
+  - name: Discovery Rule created successfully
+    debug:
+      msg: "Discovery Rule '{{ discovery_name }}' created successfully!"

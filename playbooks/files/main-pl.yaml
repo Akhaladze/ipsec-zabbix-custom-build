@@ -1,0 +1,258 @@
+zabbix_export:
+  version: '6.0'
+  date: '2024-11-11T22:51:16Z'
+  groups:
+    - uuid: 846977d1dfed4968bc5f8bdb363285bc
+      name: 'Templates/Operating systems'
+  templates:
+    - uuid: f32c8a5d03e04b09ad8a3f07d7f25a91
+      template: 'Pi Node by Zabbix agent'
+      name: 'Pi Node by Zabbix agent'
+      description: 'Pi Bookworm custom Linux template. Requires agent of Zabbix 6.0 or newer.'
+      groups:
+        - name: 'Templates/Operating systems'
+      items:
+        - uuid: d2c8e7f5b9f44e3ab8c9f6b4e3d2a7c1
+          name: 'Interface eth0: Bits received'
+          key: 'net.if.in["eth0"]'
+          delay: 3m
+          value_type: FLOAT
+          units: bps
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+            - type: MULTIPLIER
+              parameters:
+                - '8'
+        - uuid: f4c9d8b6e3a94b2f9b7d3f5c4e6b1a7d
+          name: 'Interface wwan0: Bits received'
+          key: 'net.if.in["wwan0"]'
+          delay: 3m
+          value_type: FLOAT
+          units: bps
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+            - type: MULTIPLIER
+              parameters:
+                - '8'
+        - uuid: e3b7f9c5d2a34819b9a2d5c4f7b8e6f4
+          name: 'Interface eth0: Bits sent'
+          key: 'net.if.out["eth0"]'
+          delay: 3m
+          value_type: FLOAT
+          units: bps
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+            - type: MULTIPLIER
+              parameters:
+                - '8'
+        - uuid: a5d8f9c4b2a34e7f9b1d3f6c4e5b7d2a
+          name: 'Interface wwan0: Bits sent'
+          key: 'net.if.out["wwan0"]'
+          delay: 3m
+          value_type: FLOAT
+          units: bps
+          preprocessing:
+            - type: CHANGE_PER_SECOND
+              parameters:
+                - ''
+            - type: MULTIPLIER
+              parameters:
+                - '8'
+        - uuid: b0e2f92bb2f946b49731d4f8246b5a9e
+          name: 'MAC Address for eth0'
+          key: net.mac.eth0
+          delay: 1h
+          trends: '0'
+          value_type: CHAR
+        - uuid: a7c3f5d6e4b349c7b2a8d3f9c1b7f2e8
+          name: 'External IP for wwan0'
+          key: net.wwan0.metric.extip
+          delay: 1h
+          trends: '0'
+          value_type: CHAR
+        - uuid: c9f5e6d8b2c94f38a7b9d3f5e4b6c1d2
+          name: 'Idle Status for wwan0'
+          key: net.wwan0.metric.idle
+          value_type: FLOAT
+        - uuid: b8e4d7c5f9b34d28a7f9c6b3d4a5f2c9
+          name: 'Location Metric for wwan0'
+          key: net.wwan0.metric.loc
+          delay: 1h
+          trends: '0'
+          value_type: CHAR
+        - uuid: f6d2b3e5c4f74b2d98f7b92e1c3d4a6c
+          name: 'RTT Metric for wwan0'
+          key: net.wwan0.metric.rtt
+          value_type: FLOAT
+          units: ms
+        - uuid: c1d3f28fc1f34f2498a2f73e592b5b8a
+          name: 'RSSI for wwan0'
+          key: net.wwan0.rssi
+          value_type: FLOAT
+        - uuid: d4b2c9eaf3b54a0f9132e3f6294d7c5b
+          name: 'SNR for wwan0'
+          key: net.wwan0.snr
+          value_type: FLOAT
+        - uuid: e5f3d2c1b6a54926b4d8f94a2f3b7c4f
+          name: 'Uptime for wwan0'
+          key: net.wwan0.uptime
+          trends: '0'
+          value_type: CHAR
+      dashboards:
+        - uuid: 102ceddd12b046b7a572d54c7d5c27cc
+          name: 'Pi Node dashboard'
+          pages:
+            - widgets:
+                - type: PLAIN_TEXT
+                  name: 'Mobile IP'
+                  width: '4'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemids
+                      value:
+                        host: 'Pi Node by Zabbix agent'
+                        key: net.wwan0.metric.extip
+                - type: GRAPH_CLASSIC
+                  'y': '3'
+                  width: '14'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'Pi Node by Zabbix agent'
+                        name: 'IDLE status wwan0'
+                - type: GRAPH_CLASSIC
+                  'y': '8'
+                  width: '14'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'Pi Node by Zabbix agent'
+                        name: 'RTT wwan0'
+                - type: GRAPH_CLASSIC
+                  'y': '13'
+                  width: '14'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'Pi Node by Zabbix agent'
+                        name: 'Radio wwan0'
+                - type: GRAPH_CLASSIC
+                  'y': '18'
+                  width: '14'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'Pi Node by Zabbix agent'
+                        name: 'Flow wwan0'
+                - type: GRAPH_CLASSIC
+                  'y': '23'
+                  width: '14'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'Pi Node by Zabbix agent'
+                        name: 'Flow eth0'
+                - type: PLAIN_TEXT
+                  name: Location
+                  x: '4'
+                  width: '6'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemids
+                      value:
+                        host: 'Pi Node by Zabbix agent'
+                        key: net.wwan0.metric.loc
+                - type: ITEM
+                  name: 'Mobile Uptime'
+                  x: '10'
+                  width: '4'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'Pi Node by Zabbix agent'
+                        key: net.wwan0.uptime
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show
+                      value: '4'
+  graphs:
+    - uuid: fdb18c3c8baa464da145bdb52d2cc128
+      name: 'Flow eth0'
+      graph_items:
+        - color: 199C0D
+          calc_fnc: ALL
+          item:
+            host: 'Pi Node by Zabbix agent'
+            key: 'net.if.in["eth0"]'
+        - sortorder: '1'
+          color: F63100
+          calc_fnc: ALL
+          item:
+            host: 'Pi Node by Zabbix agent'
+            key: 'net.if.out["eth0"]'
+    - uuid: 580eb7df132844c4929d21a5e3d2cc74
+      name: 'Flow wwan0'
+      graph_items:
+        - color: 199C0D
+          calc_fnc: ALL
+          item:
+            host: 'Pi Node by Zabbix agent'
+            key: 'net.if.in["wwan0"]'
+        - sortorder: '1'
+          color: F63100
+          calc_fnc: ALL
+          item:
+            host: 'Pi Node by Zabbix agent'
+            key: 'net.if.out["wwan0"]'
+    - uuid: 154d9921903b44df8066d663ca6ddb28
+      name: 'IDLE status wwan0'
+      graph_items:
+        - color: 199C0D
+          calc_fnc: ALL
+          item:
+            host: 'Pi Node by Zabbix agent'
+            key: net.wwan0.metric.idle
+    - uuid: 217ac839605f47078fc535dd251de45a
+      name: 'Radio wwan0'
+      graph_items:
+        - color: 199C0D
+          calc_fnc: ALL
+          item:
+            host: 'Pi Node by Zabbix agent'
+            key: net.wwan0.rssi
+        - sortorder: '1'
+          color: F63100
+          calc_fnc: ALL
+          item:
+            host: 'Pi Node by Zabbix agent'
+            key: net.wwan0.snr
+    - uuid: bc72c4b4912849cc8fada78c5e57160f
+      name: 'RTT wwan0'
+      graph_items:
+        - color: 199C0D
+          calc_fnc: ALL
+          item:
+            host: 'Pi Node by Zabbix agent'
+            key: net.wwan0.metric.rtt

@@ -1,0 +1,262 @@
+---
+- hosts: zabbix_servers
+  become: true
+  vars_files:
+    - ./../zabbix-server.env
+
+  tasks:
+    - name: Add dashboard
+      ansible.builtin.import_tasks: task-add-dashboard2.yml
+  
+    - name: Authenticate with Zabbix API
+      uri:
+        url: "{{ api_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "jsonrpc": "2.0",
+            "method": "user.login",
+            "params": {
+              "username": "{{ api_user }}",
+              "password": "{{ api_password }}"
+            },
+            "id": 1
+          }
+        body_format: json
+      register: auth_response
+
+    - name: Fail if authentication fails
+      fail:
+        msg: "Authentication failed: {{ auth_response.json.error.data }}"
+      when: auth_response.json.error is defined
+
+    - name: Get Action ID
+      uri:
+        url: "{{ api_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "jsonrpc": "2.0",
+            "method": "action.get",
+            "params": {
+              "output": ["actionid", "name"],
+              "filter": {
+                "name": ["{{ action_name }}"]
+              }
+            },
+            "auth": "{{ auth_response.json.result }}",
+            "id": 2
+          }
+        body_format: json
+      register: action_response
+
+    - name: Fail if action not found
+      fail:
+        msg: "Action '{{ action_name }}' not found."
+      when: action_response.json.result | length == 0
+
+    - name: Set actionid fact
+      set_fact:
+        action_id: "{{ action_response.json.result[0].actionid }}"
+
+    - name: Enable the action
+      uri:
+        url: "{{ api_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "jsonrpc": "2.0",
+            "method": "action.update",
+            "params": {
+              "actionid": "{{ action_id }}",
+              "status": 0
+            },
+            "auth": "{{ auth_response.json.result }}",
+            "id": 3
+          }
+        body_format: json
+      register: enable_action_response
+
+
+    - name: Fail if authentication fails
+      fail:
+        msg: "Authentication failed: {{ auth_response.json.error.data }}"
+      when: auth_response.json.error is defined
+
+    - name: Read template file
+      slurp:
+        src: "{{ template_file }}"
+      register: template_content
+
+    - name: Import template to Zabbix
+      uri:
+        url: "{{ api_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "jsonrpc": "2.0",
+            "method": "configuration.import",
+            "params": {
+              "format": "json",
+              "rules": {
+                "templates": {
+                  "createMissing": true,
+                  "updateExisting": true
+                },
+                "items": {
+                  "createMissing": true,
+                  "updateExisting": true
+                },
+                "graphs": {
+                  "createMissing": true,
+                  "updateExisting": true
+                },
+                "triggers": {
+                  "createMissing": true,
+                  "updateExisting": true
+                },
+                "valueMaps": {
+                  "createMissing": true,
+                  "updateExisting": true
+                },
+                "templateScreens": {
+                  "createMissing": true,
+                  "updateExisting": true
+                }
+              },
+              "source": "{{ template_content.content | b64decode }}"
+            },
+            "auth": "{{ auth_response.json.result }}",
+            "id": 2
+          }
+        body_format: json
+      register: import_response
+      ignore_errors: true
+
+    - name: Fail if template import fails
+      fail:
+        msg: "Failed to import template: {{ import_response.json.error.data }}"
+      when: import_response.json.error is defined
+      ignore_errors: true
+
+    - name: Debug import response
+      debug:
+        msg: "Template imported successfully!"
+
+    - name: Get template ID
+      uri:
+        url: "{{ api_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "jsonrpc": "2.0",
+            "method": "template.get",
+            "params": {
+              "output": ["templateid"],
+              "filter": {
+                "host": ["{{ template_name }}"]
+              }
+            },
+            "auth": "{{ auth_response.json.result }}",
+            "id": 4
+          }
+        body_format: json
+      register: template_response
+
+    - name: Set templateid fact
+      set_fact:
+        template_id: "{{ template_response.json.result[0].templateid }}"
+      ignore_errors: true
+
+    - name: Update action operations
+      uri:
+        url: "{{ api_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "jsonrpc": "2.0",
+            "method": "action.update",
+            "params": {
+              "actionid": "{{ action_id }}",
+              "operations": [
+                {
+                  "operationtype": 6,
+                  "optemplate": [
+                    {
+                      "templateid": "{{ template_id }}"
+                    }
+                  ]
+                }
+              ]
+            },
+            "auth": "{{ auth_response.json.result }}",
+            "id": 5
+          }
+        body_format: json
+      register: update_operations_response
+      ignore_errors: true
+    
+    - name: Fail if update operations fails
+      fail:
+        msg: "Failed to update action operations: {{ update_operations_response.json.error.data }}"
+      when: update_operations_response.json.error is defined
+
+    - name: Debug update operations response
+      debug:
+        msg: "Action operations updated successfully!"
+    - name: Add discovery rule
+      ansible.builtin.import_tasks: task-add-discovery-rule.yml
+      ignore_errors: true
+    
+
+  #  - name: Remove condition rule 2
+  #    uri:
+  #      url: "{{ api_url }}"
+  #      method: POST
+  #      headers:
+  #        Content-Type: "application/json"
+  #      body: |
+  #        {
+  #          "jsonrpc": "2.0",
+  #          "method": "action.update",
+  #          "params": {
+  #            "actionid": "{{ action_id }}",
+  #            "filter": {
+  #              "evaltype": 1,
+  #              "conditions": [
+  #                {
+  #                  "conditiontype": 1,
+  #                  "operator": 2,
+  #                  "value": ""
+  #                }
+  #              ]
+  #            }
+  #          },
+  #          "auth": "{{ auth_response.json.result }}",
+  #          "id": 6
+  #        }
+  #      body_format: json
+  #    register: remove_condition_response
+
+    - name: Debug action update
+      debug:
+        msg: "Action '{{ action_name }}' updated successfully."
+
+
+    - name: Reenable and start zabbix
+      ansible.builtin.service:
+        name: zabbix-server
+        enabled: true
+        state: started

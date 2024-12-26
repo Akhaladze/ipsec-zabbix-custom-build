@@ -1,0 +1,83 @@
+---
+- hosts: zabbix_agents
+  become: true
+  vars_files:
+    - ./../zabbix-agent.ini
+
+  tasks:
+
+    - name: Install dependent packages
+      apt:
+        update_cache: yes
+
+    - name: Download Zabbix Agent 7.0
+      get_url:
+        url: "https://repo.zabbix.com/zabbix/7.0/debian/pool/main/z/zabbix-release/zabbix-release_latest+debian12_all.deb"
+        dest: "/tmp/zabbix-release_latest+debian12_all.deb"
+
+    - name: Install Zabbix Agent 7.0
+      apt:
+        deb: "/tmp/zabbix-release_latest+debian12_all.deb"
+      register: install_zabbix_agent
+      ignore_errors: true
+      
+    - name: Enable Zabbix agent
+      apt:
+        name: zabbix-agent
+        state: present
+        update_cache: yes
+      when: install_zabbix_agent is changed
+
+    - name: Get MAC address of enp1s0 interface
+      shell: ip link show enp1s0 | grep -oP '(?<=ether\s)[\da-fA-F:]{17}'
+      register: mac_address
+      changed_when: false
+      become: true
+
+    - name: Set client MAC as variable
+      set_fact:
+        client_mac: "{{ mac_address.stdout | replace(':', '') }}"
+
+    - name: Configure Zabbix server IP in agent config
+      lineinfile:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regexp: '^Server='
+        line: 'Server={{ server_ip_nat }}'
+
+    - name: Set ServerActive parameter in Zabbix agent config
+      lineinfile:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regexp: '^# ServerActive='
+        line: 'ServerActive={{ server_ip_nat }}'
+
+    - name: Configure Zabbix agent Hostname with MAC address
+      lineinfile:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regexp: '^Hostname='
+        line: 'Hostname=client-{{ client_mac }}'
+
+    - name: Restart Zabbix agent
+      service:
+        name: zabbix-agent
+        state: started
+        enabled: yes
+      ignore_errors: true
+
+    - name: Check init system
+      shell: 'ps -p 1 -o comm='
+      register: init_system
+
+    - name: Ensure IPSEC is enabled (systemd)
+      service:
+        name: ipsec
+        state: restarted
+      when: init_system.stdout == "systemd"
+
+    - name: Ensure IPSEC is enabled (SysVinit)
+      command: service ipsec restart
+      when: init_system.stdout != "systemd"
+      
+  handlers:
+    - name: Restart ufw
+      command: ufw reload
+      become: true

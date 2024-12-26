@@ -1,0 +1,25 @@
+- hosts: zabbix_servers
+  vars_files:
+    - ./../zabbix-server.env
+  become: true
+  tasks:
+    - name: Install locales package
+      apt:
+        name: locales
+        state: present
+        update_cache: yes
+
+    - name: Generate en_US.UTF-8 locale
+      command: locale-gen en_US.UTF-8
+      args:
+        creates: /usr/lib/locale/en_US.utf8
+
+    - name: Set system-wide locale to en_US.UTF-8
+      lineinfile:
+        path: /etc/default/locale
+        regexp: '^LANG='
+        line: 'LANG=en_US.UTF-8'
+
+    - name: Apply locale settings
+      shell: "source /etc/default/locale"
+      when: ansible_distribution == "Debian"
