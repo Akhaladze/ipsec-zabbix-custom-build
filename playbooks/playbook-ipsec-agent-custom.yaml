@@ -1,39 +1,108 @@
-
----  
-- name: Set up VPN client with strongSwan on Ubuntu 22.04
+---
+- name: Build and set up VPN client with strongSwan from source
   hosts: zabbix_agents
   become: true
   vars_files:
     - ./../zabbix-agent.ini
   vars:
-    client_mac_address: "00:00:00:00:00:00"
-
+    strongswan_repo: "https://github.com/strongswan/strongswan.git"
+    build_dir: "/home/gnet/strongswan"
+    install_prefix: "/usr/"
+    IPSEC_VER: 6.0.0
+    #configure_options: "--prefix=/usr --sysconfdir=/etc --libexecdir=/usr/libexec --with-systemdsystemunitdir=/usr/lib/systemd/system --enable-stroke"
+    configure_options: "--prefix=/usr --sysconfdir=/etc --libexecdir=/usr/libexec --with-systemdsystemunitdir=/usr/lib/systemd/system --enable-strokes"
   tasks:
-    - name: Ensure Python3 is installed
-      raw: |
-        if ! command -v python3 &> /dev/null; then
-          apt-get update && apt-get install -y python3
-        fi
-    - name: Set Python interpreter for Ansible
-      ansible.builtin.set_fact:
-        ansible_python_interpreter: /usr/bin/python3
-
-    - name: Update system packages
+    - name: Ensure required packages for build are installed
       apt:
-        update_cache: yes
-        name: "{{ item }}"
+        name:
+          - git
+          - gcc
+          - make
+          - libgmp-dev
+          - libssl-dev
+          - automake
+          - libtool
+          - dpkg-dev
+          - fakeroot
+          - build-essential
+          - git
+          - gcc
+          - autoconf
+          - pkg-config
+          - gettext
+          - perl
+          - flex
+          - yacc
+          - bison
+          - gperf
+          - libcap-ng-dev
+          - git
+          - clang 
+          - automake
+          - python3
+          - curl 
+          - debhelper 
+          - libcrypto++-dev
+          - libcurl4
+          - libcurl4-openssl-dev
+          - libgcrypt20-dev
+          - libssl3
+          - libsystemd-dev
+          - openssl
         state: present
-      loop:
-        - strongswan
-        - iptables
-        - iputils-ping
-        - iproute2
-        - iputils-arping
-        - iptables-persistent
-    # get the MAC address of the client
+        update_cache: yes
+
+    - name: create a directory
+      ansible.builtin.file:
+        path: "{{ build_dir }}"
+        state: directory
+    
+    - name: Download StrongSwan source package
+      get_url:
+        url: "https://download.strongswan.org/strongswan-{{ IPSEC_VER }}.tar.bz2"
+        dest: "{{ build_dir }}-{{ IPSEC_VER }}.tar.bz2"
+
+    - name: Extract StrongSwan source package
+      unarchive:
+        src: "{{  build_dir}}-{{ IPSEC_VER }}.tar.bz2"
+        dest: "{{ build_dir }}"
+        remote_src: yes
+
+
+#    - name: Clone strongSwan repository
+#      git:
+#        repo: "{{ strongswan_repo }}"
+#        dest: "{{ build_dir }}"
+#        force: yes
+#      ignore_errors: yes
+
+#    - name: Run autogen.sh to generate configure script
+#      command: ./autogen.sh
+#      args:
+#        chdir: "{{ build_dir }}"
+
+    - name: Configure strongSwan build
+      command: |
+        ./configure {{ configure_options}}
+      args:
+        chdir: "/home/gnet/strongswan-6.0.0"
+
+    - name: Build strongSwan
+      command: make
+      args:
+        chdir: "/home/gnet/strongswan-6.0.0"
+
+    - name: Build strongSwan
+      command: sudo make install
+      args:
+        chdir: "{{ build_dir }}-{{ IPSEC_VER }}"
+
+
+
+
     - name: Get MAC address of the client
-      shell: ip link show eth0 | awk '/ether/ {print $2}'
-      register: client_mac_address  
+      shell: ip link show enp1s0 | awk '/ether/ {print $2}'
+      register: client_mac_address
 
     - name: Create ipsec.conf for client
       copy:
@@ -48,8 +117,7 @@
             keyexchange=ikev2
             leftsourceip=%config
             left=%any
-            #leftsubnet=172.16.16.0/22
-            leftid=client-{{ client_mac_address.stdout_lines | join('') | regex_replace(':', '-')  }}
+            leftid=client-{{ client_mac_address.stdout_lines | join('') | regex_replace(':', '-') }}
             leftauth=psk
             right={{ server_ip }}
             rightid={{ server_ip }}
@@ -59,7 +127,6 @@
             dpddelay=15s
             dpdtimeout=60s
             auto=start
-            
 
     - name: Create ipsec.secrets file
       copy:
@@ -71,18 +138,5 @@
     - name: Restart strongSwan service
       service:
         name: ipsec
-        state: stopped
+        state: restarted
         enabled: yes
-      ignore_errors: true
-    
-    #- name: Enable strongSwan starter service
-    #  service:
-    #    name: strongswan-starter
-    #    state: restarted
-    #    enabled: yes
-    
-    #- name: Add route to the server 
-    #  command: sudo ip route add 172.16.16.0/22 dev eth0
-    #  become: true
-    #  ignore_errors: true
-    

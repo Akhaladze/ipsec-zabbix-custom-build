@@ -33,7 +33,6 @@
           - python3-yaml
           - valgrind
           - openssl
-          - libssl-dev
           - curl
           - mc
           - nmap
@@ -150,7 +149,7 @@
 
 
           conn myvpn
-            left=193.201.217.126
+            left="{{ server_ip }}"
             leftid=193.201.217.126
             leftsubnet=193.201.217.126/32
             leftauth=psk
