@@ -28,8 +28,6 @@ The directory structure follows best practices recommended by the Ansible commun
  |                         └── README.md
  |                         └── tasks/main.yml
  |── inventory/
- |   └── groups_vars/
- |   └── host_vars/
  |   └── hosts.yml
  |── ansible-navigator.yml
  |── ansible.cfg

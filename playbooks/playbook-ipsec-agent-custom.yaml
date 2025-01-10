@@ -9,8 +9,7 @@
     build_dir: "/home/gnet/strongswan"
     install_prefix: "/usr/"
     IPSEC_VER: 6.0.0
-    #configure_options: "--prefix=/usr --sysconfdir=/etc --libexecdir=/usr/libexec --with-systemdsystemunitdir=/usr/lib/systemd/system --enable-stroke"
-    configure_options: "--prefix=/usr --sysconfdir=/etc --libexecdir=/usr/libexec --with-systemdsystemunitdir=/usr/lib/systemd/system --enable-strokes"
+    configure_options: "--prefix=/usr --sysconfdir=/etc --libexecdir=/usr/libexec --with-systemdsystemunitdir=/usr/lib/systemd/system --enable-stroke"
   tasks:
     - name: Ensure required packages for build are installed
       apt:
@@ -25,8 +24,6 @@
           - dpkg-dev
           - fakeroot
           - build-essential
-          - git
-          - gcc
           - autoconf
           - pkg-config
           - gettext
@@ -49,6 +46,10 @@
           - libssl3
           - libsystemd-dev
           - openssl
+          - mc
+          - iproute2
+          - net-tools
+          - iputils-ping
         state: present
         update_cache: yes
 
@@ -64,7 +65,7 @@
 
     - name: Extract StrongSwan source package
       unarchive:
-        src: "{{  build_dir}}-{{ IPSEC_VER }}.tar.bz2"
+        src: "{{  build_dir }}-{{ IPSEC_VER }}.tar.bz2"
         dest: "{{ build_dir }}"
         remote_src: yes
 
@@ -83,26 +84,27 @@
 
     - name: Configure strongSwan build
       command: |
-        ./configure {{ configure_options}}
+        ./configure {{ configure_options }}
       args:
-        chdir: "/home/gnet/strongswan-6.0.0"
+        chdir: "/home/gnet/strongswan/strongswan-6.0.0"
 
     - name: Build strongSwan
       command: make
       args:
-        chdir: "/home/gnet/strongswan-6.0.0"
+        chdir: "/home/gnet/strongswan/strongswan-6.0.0"
 
     - name: Build strongSwan
       command: sudo make install
       args:
-        chdir: "{{ build_dir }}-{{ IPSEC_VER }}"
-
+        chdir: "/home/gnet/strongswan/strongswan-6.0.0"
 
 
 
     - name: Get MAC address of the client
-      shell: ip link show enp1s0 | awk '/ether/ {print $2}'
+      shell: ip link show {{ net_interface }} | awk '/ether/ {print $2}'
       register: client_mac_address
+
+
 
     - name: Create ipsec.conf for client
       copy:
@@ -122,7 +124,7 @@
             right={{ server_ip }}
             rightid={{ server_ip }}
             rightauth=psk
-            rightsubnet=0.0.0.0/0, 172.16.16.0/22
+            rightsubnet=172.16.16.0/22
             dpdaction=restart
             dpddelay=15s
             dpdtimeout=60s
@@ -135,8 +137,19 @@
           : PSK "{{ psk_key }}"
         mode: '0600'
 
-    - name: Restart strongSwan service
-      service:
-        name: ipsec
-        state: restarted
-        enabled: yes
+    - name: Add route to the server
+      command: ip route add {{ server_ip }}/32 via {{ net_interface }}
+      ignore_errors: yes
+
+    - name: Run ipsec start
+      command: ipsec restart
+      become: true
+      tags: ipsec_start
+      ignore_errors: yes
+      
+
+    #- name: Restart strongSwan service
+    #  service:
+    #    name: ipsec
+    #    state: restarted
+    #    enabled: yes

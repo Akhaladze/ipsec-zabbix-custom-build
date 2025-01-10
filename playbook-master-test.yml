@@ -1,0 +1,5 @@
+---
+- ansible.builtin.import_playbook: playbooks/task-add-mikrotik.yaml
+#- ansible.builtin.import_playbook: playbooks/task-add-docker-pool.yaml
+#- ansible.builtin.import_playbook: playbooks/task-add-intel-ws.yaml
+#- ansible.builtin.import_playbook: playbooks/task-add-amd-ws.yaml

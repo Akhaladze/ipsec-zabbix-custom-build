@@ -1,0 +1,14 @@
+---
+- hosts: zabbix_agents
+  vars_files:
+    - ./../zabbix-agent.ini
+  become: true
+  tasks:
+    - name: Zabbix Agent restart
+      service:
+        name: zabbix-agent
+        state: restarted
+    - name: Restart IPsec Agent
+      command: ipsec restart
+
+

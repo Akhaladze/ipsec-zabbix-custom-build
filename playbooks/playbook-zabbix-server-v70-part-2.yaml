@@ -2,11 +2,14 @@
 - hosts: zabbix_servers
   become: true
   vars_files:
-    - ./../zabbix-server.env
+    - ./../zabbix-server.ini
+  tags:
+    - add-template
 
   tasks:
     - name: Add dashboard
-      ansible.builtin.import_tasks: task-add-dashboard2.yml
+      ansible.builtin.import_tasks: dashboards/task-add-dashboard2.yml
+      tags: add-template
   
     - name: Authenticate with Zabbix API
       uri:
@@ -26,11 +29,13 @@
           }
         body_format: json
       register: auth_response
+      tags: add-template
 
     - name: Fail if authentication fails
       fail:
         msg: "Authentication failed: {{ auth_response.json.error.data }}"
       when: auth_response.json.error is defined
+      tags: add-template
 
     - name: Get Action ID
       uri:
@@ -62,6 +67,7 @@
     - name: Set actionid fact
       set_fact:
         action_id: "{{ action_response.json.result[0].actionid }}"
+      tags: add-template
 
     - name: Enable the action
       uri:
@@ -82,6 +88,7 @@
           }
         body_format: json
       register: enable_action_response
+      tags: add-template
 
 
     - name: Fail if authentication fails
@@ -93,6 +100,7 @@
       slurp:
         src: "{{ template_file }}"
       register: template_content
+      tags: add-template
 
     - name: Import template to Zabbix
       uri:
@@ -140,16 +148,19 @@
         body_format: json
       register: import_response
       ignore_errors: true
+      tags: add-template
 
     - name: Fail if template import fails
       fail:
         msg: "Failed to import template: {{ import_response.json.error.data }}"
       when: import_response.json.error is defined
       ignore_errors: true
+      tags: add-template
 
     - name: Debug import response
       debug:
         msg: "Template imported successfully!"
+      tags: add-template
 
     - name: Get template ID
       uri:
@@ -172,11 +183,13 @@
           }
         body_format: json
       register: template_response
+      ignore_errors: true
 
     - name: Set templateid fact
       set_fact:
         template_id: "{{ template_response.json.result[0].templateid }}"
       ignore_errors: true
+      tags: add-template
 
     - name: Update action operations
       uri:
@@ -207,18 +220,23 @@
         body_format: json
       register: update_operations_response
       ignore_errors: true
+      tags: add-template
     
     - name: Fail if update operations fails
       fail:
         msg: "Failed to update action operations: {{ update_operations_response.json.error.data }}"
       when: update_operations_response.json.error is defined
+      tags: add-template
 
     - name: Debug update operations response
       debug:
         msg: "Action operations updated successfully!"
+      tags: add-template
+
     - name: Add discovery rule
       ansible.builtin.import_tasks: task-add-discovery-rule.yml
       ignore_errors: true
+      tags: add-template
     
 
   #  - name: Remove condition rule 2
@@ -253,6 +271,7 @@
     - name: Debug action update
       debug:
         msg: "Action '{{ action_name }}' updated successfully."
+      tags: add-template
 
 
     - name: Reenable and start zabbix

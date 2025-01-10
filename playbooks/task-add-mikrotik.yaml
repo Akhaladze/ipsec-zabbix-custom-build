@@ -1,0 +1,29 @@
+---
+- name: Configure MikroTik IPsec VPN
+  hosts: mikrotik_routers
+  gather_facts: false
+  tasks:
+    - name: Run a test command
+      community.routeros.command:
+        commands:
+          - /system resource print
+
+    - name: Configure IPsec proposal
+      community.routeros.command:
+        commands:
+          - /ip ipsec proposal set [find default=yes] auth-algorithms=sha256 enc-algorithms=aes-256-cbc lifetime=30m
+
+    - name: Add IPsec peer
+      community.routeros.command:
+        commands:
+          - /ip ipsec peer add address=vpn.globalmobileproxies.com exchange-mode=ike2 secret=your_pre_shared_key send-initial-contact=yes
+
+    - name: Add IPsec identity
+      community.routeros.command:
+        commands:
+          - /ip ipsec identity add peer=vpn.globalmobileproxies.com secret=your_pre_shared_key
+
+    - name: Add IPsec policy
+      community.routeros.command:
+        commands:
+          - /ip ipsec policy add src-address=10.10.100.1/32 dst-address=vpn.globalmobileproxies.com/32 sa-src-address=10.10.100.1 sa-dst-address=vpn.globalmobileproxies.com tunnel=yes action=encrypt level=unique

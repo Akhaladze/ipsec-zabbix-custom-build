@@ -1,9 +1,46 @@
 [zabbix_servers]
-zabbix_server ansible_host=10.88.88.139 ansible_port=22 ansible_user=gnet ansible_become_password=Frdfkfyu2023!
+zabbix_server ansible_host=66.135.8.5 ansible_port=22 ansible_user=gnet ansible_become_password=Frdfkfyu2023!
 #zabbix_host_nat ansible_host=193.201.217.126 ansible_port=7422 ansible_user=user ansible_become_password=000200!
 #zabbix_host_mbit ansible_host=mbit-de-gw.mbit-consultants.com ansible_port=22 ansible_user=gnet ansible_become_password=Frdfkfyu2023!
+[mikrotik_routers]
+10.10.100.1 ansible_user=gnet ansible_password=codeX195 ansible_network_os=community.routeros
+10.10.100.2 ansible_user=gnet ansible_password=codeX195 ansible_network_os=community.routeros
+146.0.80.152 ansible_user=gnet ansible_password=codeX195 ansible_network_os=community.routeros
+
+
+
 [zabbix_agents]
-client-1 	ansible_host=10.88.88.139	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-2	ansible_host=10.88.88.83    ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-2	ansible_host=192.168.102.81     ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-2	ansible_host=192.168.100.197 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+
+client-1 	ansible_host=10.50.10.108  	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-2	ansible_host=192.168.102.202     ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-3	ansible_host=10.50.10.3     ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-4	ansible_host=10.50.10.4     ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-5	ansible_host=10.50.10.5 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-6	ansible_host=10.50.10.6 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-7	ansible_host=10.50.10.7 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-8	ansible_host=10.50.10.8 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-9	ansible_host=10.50.10.9 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-10	ansible_host=10.50.10.10 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-11	ansible_host=10.50.10.11 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-12	ansible_host=10.50.10.12 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-13	ansible_host=10.50.10.13 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-14	ansible_host=10.50.10.14 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-15	ansible_host=10.50.10.15 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-16	ansible_host=10.50.10.16 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-17	ansible_host=10.50.10.17 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-18	ansible_host=10.50.10.18 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-19	ansible_host=10.50.10.19 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-20	ansible_host=10.50.10.20 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-21	ansible_host=10.50.10.21 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-22	ansible_host=10.50.10.22 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-23	ansible_host=10.50.10.23 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-24	ansible_host=10.50.10.24 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-25	ansible_host=10.50.10.25 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-26	ansible_host=10.50.10.26 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-27	ansible_host=10.50.10.27 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-28	ansible_host=10.50.10.28 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-29	ansible_host=10.50.10.29 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-30	ansible_host=10.50.10.30 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-31	ansible_host=10.50.10.31 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+client-32	ansible_host=10.50.10.109 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+client-33	ansible_host=10.50.10.110 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!

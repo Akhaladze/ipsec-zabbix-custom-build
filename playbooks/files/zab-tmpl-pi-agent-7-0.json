@@ -1,6 +1,6 @@
 {
     "zabbix_export": {
-      "version": "6.0",
+      "version": "7.0",
       "date": "2024-11-11T22:51:16Z",
       "groups": [
         {
@@ -13,7 +13,7 @@
           "uuid": "f32c8a5d03e04b09ad8a3f07d7f25a91",
           "template": "Pi Node by Zabbix agent",
           "name": "Pi Node by Zabbix agent",
-          "description": "Pi Bookworm custom Linux template. Requires agent of Zabbix 6.0 or newer.",
+          "description": "Pi Bookworm custom Linux template. Requires agent of Zabbix 7.0 or newer.",
           "groups": [
             {
               "name": "Templates/Operating systems"
@@ -419,4 +419,4 @@
         }
       ]
     }
-  }
+}

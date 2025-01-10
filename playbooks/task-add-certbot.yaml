@@ -1,0 +1,114 @@
+---
+- hosts: zabbix_servers
+  become: true
+  vars_files:
+    - ./../zabbix-server.ini
+  tags:
+    - nginx
+    - certbot
+    - grafana
+    - zabbix-server
+  tasks:
+    - name: Install Certbot and nginx plugin
+      apt:
+        name: 
+          - certbot
+          - python3-certbot-nginx
+        state: latest
+        update_cache: yes
+
+    - name: Ensure nginx is running
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Configure NGINX for Zabbix and Grafana
+      copy:
+        dest: /etc/nginx/sites-available/zabbix_grafana.conf
+        content: |
+          server {
+              listen 80;
+              server_name {{ domain_name }};
+
+              location /.well-known/acme-challenge/ {
+                  root /var/www/html;
+              }
+
+              location / {
+                  return 301 https://$host$request_uri;
+              }
+          }
+
+          server {
+              listen 443 ssl;
+              server_name {{ domain_name }};
+
+              ssl_certificate /etc/letsencrypt/live/{{ domain_name }}/fullchain.pem;
+              ssl_certificate_key /etc/letsencrypt/live/{{ domain_name }}/privkey.pem;
+
+              ssl_protocols TLSv1.2 TLSv1.3;
+              ssl_ciphers HIGH:!aNULL:!MD5;
+
+              location / {
+                  proxy_pass http://127.0.0.1:8080/;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+              }
+
+              location /grafana {
+                  proxy_pass http://127.0.0.1:3000/;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+              }
+          }
+      notify:
+        - Reload NGINX
+
+    - name: Enable NGINX site configuration
+      file:
+        src: /etc/nginx/sites-available/zabbix_grafana.conf
+        dest: /etc/nginx/sites-enabled/zabbix_grafana.conf
+        state: link
+
+    - name: Remove default NGINX site configuration
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Obtain SSL certificate with Certbot
+      shell: |
+        certbot --nginx -n --agree-tos --email "{{ certbot_email }}" -d "{{ domain_name }}"
+
+    - name: Test NGINX configuration
+      shell: nginx -t
+      register: nginx_test
+      ignore_errors: yes
+
+    - name: Fail if NGINX configuration test fails
+      fail:
+        msg: "NGINX configuration test failed"
+      when: nginx_test.rc != 0
+
+    - name: Reload NGINX
+      service:
+        name: nginx
+        state: reloaded
+
+    - name: Create cron job for Certbot renewal
+      cron:
+        name: "Certbot Auto Renewal"
+        job: "certbot renew --quiet --renew-hook 'systemctl reload nginx'"
+        state: present
+        minute: 0
+        hour: 3
+
+  handlers:
+    - name: Reload NGINX
+      service:
+        name: nginx
+        state: reloaded

@@ -2,7 +2,7 @@
 - hosts: zabbix_servers
   become: true
   vars_files:
-    - ./../zabbix-server.env
+    - ./../zabbix-server.ini
   tasks:
 
     - name: Install chrony
@@ -30,6 +30,7 @@
       when: chrony_sync.rc == 0
       become: true
       become_user: root
+
 
     - name: Install depended packages for {{ serviceName }}
       apt:
@@ -64,6 +65,7 @@
         port: 8080
         proto: tcp
       become: true
+      ignore_errors: true
 
     - name: Allow port 10050 (Zabbix Agent)
       ufw:
@@ -71,31 +73,34 @@
         port: 10050
         proto: tcp
       become: true
-      
+      ignore_errors: true 
     - name: Allow port 10051 (Zabbix Agent) 
       ufw:
         rule: allow
         port: 10051
         proto: tcp
+      ignore_errors: true
 
     - name: Allow port 22 (SSH)
       ufw:
         rule: allow
         port: 22
         proto: tcp
+      ignore_errors: true
 
     - name: Allow port 162 (SNMP)
       ufw:
         rule: allow
         port: 162
         proto: udp
-  
+      ignore_errors: true
+
     - name: Allow port 3000 (Grafana HTTP)
       ufw:
         rule: allow
         port: 3000
         proto: tcp
-
+      ignore_errors: true
     - name: Enable ufw
       ufw:
         state: enabled
@@ -103,7 +108,7 @@
 
     - name: Restart ufw
       command: ufw reload
-  
+      ignore_errors: true
 
     - name: Download Zabbix 7.0 LTS
       get_url:
@@ -200,7 +205,7 @@
           DBUser=zabbix
           DBPassword=Password2023!
           SNMPTrapperFile=/var/log/snmptrap/snmptrap.log
-          StatsAllowedIP=127.0.0.1,192.168.124.0/24,10.10.100.0/24
+          StatsAllowedIP=127.0.0.1, 172.16.16.0/22, 10.10.100.0/24
           EnableGlobalScripts=1
         owner: root
         group: root
@@ -260,7 +265,7 @@
       lineinfile:
         path: /etc/zabbix/nginx.conf
         regexp: '^#\s*(server_name\s+.+;)'
-        line: 'server_name example.com;'
+        line: 'server_name ;'
         state: present
       notify: Restart Nginx
     
@@ -279,6 +284,7 @@
       systemd:
         name: nginx
         state: restarted
+      become: true
         
 
 

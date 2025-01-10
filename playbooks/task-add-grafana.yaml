@@ -2,7 +2,9 @@
 - hosts: zabbix_servers
   become: true
   vars_files:
-    - ./../zabbix-server.env
+    - ./../zabbix-server.ini
+  tags: 
+    - grafana
   tasks:
     - name: Update packages
       apt:
@@ -44,6 +46,7 @@
         delay: 10
         timeout: 60
         state: started
+      
     - name: Reset Grafana admin password using grafana-cli
       command: grafana-cli --homepath "/usr/share/grafana" admin reset-admin-password "{{ grafana_admin_password }}"
       environment:
@@ -51,7 +54,7 @@
 
     - name: Create Service Account
       uri:
-        url: "http://{{ server_ip }}:3000/api/serviceaccounts"
+        url: "http://localhost:3000/api/serviceaccounts"
         method: POST
         headers:
           Content-Type: "application/json"
@@ -63,7 +66,7 @@
           }
         body_format: json
         user: "admin"
-        password: "Frdfkfyu2023!"
+        password: "{{ grafana_admin_password }}"
         status_code: 
           - 200
           - 201
@@ -109,12 +112,27 @@
       service:
         name: grafana-server
         state: restarted
-        
- #   - name: Import Grafana Dashboard
- #     community.grafana.grafana_dashboard:
- #       grafana_url: "http://localhost:3000/api/dashboards"
- #       grafana_api_key: "{{ grafana_api_token }}"
- #       state: present
- #       commit_message: Updated by ansible
- #       overwrite: true
- #       path: "dashboard-grafana.json"
+    
+  # Ask for Grafana API token [manualy only]
+    - name: Get Grafana API token
+      pause:
+        prompt: "Please enter Grafana API token"
+      register: grafana_api_token
+      when: not service_account_id.stdout is defined
+
+    - name: Debug Grafana API token
+      debug:
+        msg: "Grafana API Token: {{ grafana_api_token }}"
+      ignore_errors: true
+      when: not service_account_id.stdout is defined
+      
+    - name: Import Grafana Dashboard
+      community.grafana.grafana_dashboard:
+        grafana_url: "http://localhost:3000/api/dashboards"
+        grafana_api_key: "{{ grafana_api_token }}"
+        state: present
+        commit_message: Updated by ansible
+        overwrite: true
+        path: "dashboard-grafana.json"
+        when: not grafana_api_token.stdout is defined
+      ignore_errors: true

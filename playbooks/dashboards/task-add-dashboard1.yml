@@ -4536,6 +4536,6 @@
         "uid": "000000098",
         "version": 3
       }
-    owner: user
-    group: user
+    owner: nobody
+    group: nogroup
     mode: '0644'
