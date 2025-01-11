@@ -1,16 +1,23 @@
 version: '3.8'
-
 services:
   zabbix-client:
-    image: registry.cloudpak.info/zbx-client-5:latest
+
+    #image: registry.cloudpak.info/zbx-client-5:latest
+    image: akhaladze/ipsec-client:latest
     build:
-      context: ./client
+      context: .tests/client
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+        - linux/arm/v7
     deploy:
       mode: replicated
       replicas: 1
     #ports:
     #  - "2222:22"
     environment:
+      - DOCKER_BUILDKIT=1
       - USERNAME=gnet
       - PASSWORD=Frdfkfyu2023!
     networks:

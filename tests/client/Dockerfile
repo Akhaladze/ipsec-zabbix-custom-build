@@ -77,5 +77,5 @@ COPY supervisord.conf /etc/supervisor/supervisord.conf
 
 EXPOSE 4500/udp 500/udp 22 10050 10051 5002
 
-ENTRYPOINT [ "ip", "a"]
+ENTRYPOINT [ "/bin/bash", "-c", "ip a" ]
 CMD ["/usr/sbin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
