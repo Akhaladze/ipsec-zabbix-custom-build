@@ -123,7 +123,6 @@
     - name: Debug Grafana API token
       debug:
         msg: "Grafana API Token: {{ grafana_api_token }}"
-      ignore_errors: true
       when: not service_account_id.stdout is defined
       
     - name: Import Grafana Dashboard
