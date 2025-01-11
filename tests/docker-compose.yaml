@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  zabbix-client:
+    image: registry.cloudpak.info/zbx-client-5:latest
+    build:
+      context: ./client
+    deploy:
+      mode: replicated
+      replicas: 1
+    #ports:
+    #  - "2222:22"
+    environment:
+      - USERNAME=gnet
+      - PASSWORD=Frdfkfyu2023!
+    networks:
+      - zabbix-client-2
+
+networks:
+  zabbix-client-2:
+
+  #  external: true
+
