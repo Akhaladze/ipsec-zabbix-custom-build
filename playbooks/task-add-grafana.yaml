@@ -133,5 +133,5 @@
         commit_message: Updated by ansible
         overwrite: true
         path: "dashboard-grafana.json"
-        when: not grafana_api_token.stdout is defined
+      when: not grafana_api_token.stdout is defined
       ignore_errors: true

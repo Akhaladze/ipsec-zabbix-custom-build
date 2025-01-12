@@ -73,9 +73,12 @@ RUN wget https://repo.zabbix.com/zabbix/7.0/debian/pool/main/z/zabbix/zabbix-age
 COPY zabbix_agent.conf /etc/zabbix/zabbix_agentd.conf
 COPY ipsec.* /etc/
 COPY supervisord.conf /etc/supervisor/supervisord.conf
+COPY set-client-id.sh /usr/local/bin/set-client-id.sh
+RUN chmod +x /usr/local/bin/set-client-id.sh
+
 
 
 EXPOSE 4500/udp 500/udp 22 10050 10051 5002
 
-ENTRYPOINT [ "/bin/bash", "-c", "ip a" ]
+ENTRYPOINT [ "/bin/bash", "-c", "/usr/local/bin/set-client-id.sh" ]
 CMD ["/usr/sbin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
