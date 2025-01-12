@@ -38,7 +38,7 @@ jobs:
 
             - name: Notify successful build and push
               run: |
-                curl -s -X POST https://api.telegram.org/bot$TELEGRAM_BOT/sendMessage \
+                curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT }}/sendMessage \
                     -d chat_id=$TELEGRAM_CHAT_ID \
                     -d text="Successfully built and pushed Docker image for branch: $GITHUB_REF"
             
@@ -51,6 +51,7 @@ jobs:
             - name: Notify success
               if: success()
               run: |
-                curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT }}/sendMessage \
-                -d chat_id=-{{ secrets.TELEGRAM_CHAT_ID }} \
-                -d text="Rep:backend(main),Action:build:ok"
+                curl -s -X POST https://api.telegram.org/bot$TELEGRAM_BOT/sendMessage \
+                    -d chat_id=$TELEGRAM_CHAT_ID \
+                    -d text="CI workflow finished for (AMD64) branch: $GITHUB_REF"
+
