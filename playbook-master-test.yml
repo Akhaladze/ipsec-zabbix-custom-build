@@ -1,5 +1,123 @@
 ---
-- ansible.builtin.import_playbook: playbooks/task-add-mikrotik.yaml
-#- ansible.builtin.import_playbook: playbooks/task-add-docker-pool.yaml
-#- ansible.builtin.import_playbook: playbooks/task-add-intel-ws.yaml
-#- ansible.builtin.import_playbook: playbooks/task-add-amd-ws.yaml
+- name: Service Testing Playbook
+  hosts: zabbix-server
+  become: true
+  vars:
+    ipsec_ports:
+      - 500
+      - 4500
+    amd64_client_version: "amd64_client_example_version"
+    arm64_client_version: "arm64_client_example_version"
+    zabbix_template: "Template Pi"
+    discovery_rule_name: "Example Discovery Rule"
+
+  tasks:
+    - name: Check IPsec ports
+      ansible.builtin.wait_for:
+        port: "{{ item }}"
+        host: 0.0.0.0
+        state: started
+        timeout: 10
+      loop: "{{ ipsec_ports }}"
+
+    - name: Verify Zabbix Server is running
+      ansible.builtin.service_facts:
+      register: zabbix_services
+
+    - name: Ensure Zabbix Server is present and enabled
+      ansible.builtin.fail:
+        msg: "Zabbix Server is not installed or running"
+      when: "zabbix_services.ansible_facts.services['zabbix-server'].state != 'running'"
+
+    - name: Ensure Zabbix Agent is present and enabled
+      ansible.builtin.fail:
+        msg: "Zabbix Agent is not installed or running"
+      when: "zabbix_services.ansible_facts.services['zabbix-agent'].state != 'running'"
+
+    - name: Verify NGINX certbot SSL certificate creation
+      ansible.builtin.shell:
+        cmd: "certbot certificates"
+      register: certbot_output
+
+    - name: Validate SSL certificates exist
+      ansible.builtin.fail:
+        msg: "Certbot failed to create SSL certificates"
+      when: "'No certificates found' in certbot_output.stdout"
+
+    - name: Verify Zabbix Template Pi presence
+      uri:
+        url: "{{ zabbix_api_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "jsonrpc": "2.0",
+            "method": "template.get",
+            "params": {
+              "output": ["templateid"],
+              "filter": {"host": ["{{ zabbix_template }}"]}
+            },
+            "auth": "{{ zabbix_api_auth }}",
+            "id": 1
+          }
+        body_format: json
+      register: template_check
+
+    - name: Ensure Template Pi exists and enabled
+      ansible.builtin.fail:
+        msg: "Template Pi is not present or not enabled"
+      when: "template_check.json.result | length == 0"
+
+    - name: Check Zabbix Discovery Rule existence and enabled
+      uri:
+        url: "{{ zabbix_api_url }}"
+        method: POST
+        headers:
+          Content-Type: "application/json"
+        body: |
+          {
+            "jsonrpc": "2.0",
+            "method": "drule.get",
+            "params": {
+              "output": ["druleid"],
+              "filter": {"name": ["{{ discovery_rule_name }}"]}
+            },
+            "auth": "{{ zabbix_api_auth }}",
+            "id": 1
+          }
+        body_format: json
+      register: discovery_rule_check
+
+    - name: Ensure Discovery Rule exists and is enabled
+      ansible.builtin.fail:
+        msg: "Discovery Rule does not exist or is not enabled"
+      when: "discovery_rule_check.json.result | length == 0"
+
+    - name: Verify Grafana installation
+      uri:
+        url: "http://localhost:3000/api/health"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ grafana_api_token }}"
+        status_code: 200
+
+    - name: Test AMD64 Client Connection
+      ansible.builtin.shell:
+        cmd: "ping -c 1 {{ amd64_client_version }}"
+      register: amd64_test
+
+    - name: Validate AMD64 Client Connection
+      ansible.builtin.fail:
+        msg: "AMD64 client connection failed"
+      when: amd64_test.rc != 0
+
+    - name: Test ARM64 Client Connection
+      ansible.builtin.shell:
+        cmd: "ping -c 1 {{ arm64_client_version }}"
+      register: arm64_test
+
+    - name: Validate ARM64 Client Connection
+      ansible.builtin.fail:
+        msg: "ARM64 client connection failed"
+      when: arm64_test.rc != 0
