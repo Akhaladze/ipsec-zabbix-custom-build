@@ -51,6 +51,6 @@ jobs:
             - name: Notify success
               if: success()
               run: |
-                curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage \
+                curl -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT }}/sendMessage \
                 -d chat_id=-{{ secrets.TELEGRAM_CHAT_ID }} \
                 -d text="Rep:backend(main),Action:build:ok"
