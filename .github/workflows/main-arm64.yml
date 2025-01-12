@@ -15,7 +15,7 @@ jobs:
 
             - name: Notify start of CI workflow
               run: |
-                curl -s -X POST https://api.telegram.org/bot${{ vars.TELEGRAM_CHAT_ID }}/sendMessage \
+                curl -s -X POST https://api.telegram.org/bot${{ vars.TELEGRAM_BOT }}/sendMessage \
                     -d chat_id=${{ vars.TELEGRAM_CHAT_ID }} \
                     -d text="CI workflow started for branch: $GITHUB_REF"
 
@@ -39,7 +39,7 @@ jobs:
 
             - name: Notify successful build and push
               run: |
-                curl -s -X POST https://api.telegram.org/bot${{ vars.TELEGRAM_CHAT_ID }}/sendMessage \
+                curl -s -X POST https://api.telegram.org/bot${{ vars.TELEGRAM_BOT }}/sendMessage \
                     -d chat_id=${{ vars.TELEGRAM_CHAT_ID }} \
                     -d text="Successfully built and pushed Docker image for branch: $GITHUB_REF"
 
