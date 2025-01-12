@@ -11,7 +11,7 @@ zabbix_server ansible_host=66.135.8.5 ansible_port=22 ansible_user=gnet ansible_
 
 [zabbix_agents]
 
-client-1 	ansible_host=10.50.10.108  	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+client-1 	ansible_host=10.10.100.24    	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
 #client-2	ansible_host=192.168.102.202     ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
 #client-3	ansible_host=10.50.10.3     ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
 #client-4	ansible_host=10.50.10.4     ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
@@ -42,5 +42,5 @@ client-1 	ansible_host=10.50.10.108  	ansible_user=gnet	 ansible_become_password
 #client-29	ansible_host=10.50.10.29 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
 #client-30	ansible_host=10.50.10.30 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
 #client-31	ansible_host=10.50.10.31 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-client-32	ansible_host=10.50.10.109 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-client-33	ansible_host=10.50.10.110 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-32	ansible_host=10.50.10.109 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-33	ansible_host=10.50.10.110 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
