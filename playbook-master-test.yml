@@ -1,6 +1,6 @@
 ---
 - name: Service Testing Playbook
-  hosts: zabbix-server
+  hosts: zabbix_servers
   become: true
   vars:
     ipsec_ports:
