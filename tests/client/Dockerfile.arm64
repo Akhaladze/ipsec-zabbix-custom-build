@@ -80,5 +80,5 @@ RUN chmod +x /usr/local/bin/set-client-id.sh
 
 EXPOSE 4500/udp 500/udp 22 10050 10051 5002
 
-ENTRYPOINT [ "/bin/bash", "-c", "/usr/local/bin/set-client-id.sh" ]
-CMD ["/usr/sbin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+#ENTRYPOINT [ "/bin/bash", "-c", "/usr/local/bin/set-client-id.sh" ]
+#CMD ["/usr/sbin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
