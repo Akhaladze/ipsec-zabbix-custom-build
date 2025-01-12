@@ -46,7 +46,7 @@ jobs:
           push: true
           platforms: ${{ matrix.platform }}
           file: ${{ matrix.dockerfile }}
-          tags: akhaladze/ipsec-client:${{ matrix.platform }}
+          tags: akhaladze/ipsec-client:latest
 
       - name: Notify successful build and push
         run: |
