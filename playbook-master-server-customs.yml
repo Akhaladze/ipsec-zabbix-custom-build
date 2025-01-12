@@ -1,8 +1,10 @@
 ---
-- ansible.builtin.import_playbook: playbooks/task-add-locale-en-US.yaml
-- ansible.builtin.import_playbook: playbooks/playbook-ipsec-server-custom.yaml
-- ansible.builtin.import_playbook: playbooks/playbook-zabbix-server-v70-part-1.yaml
-- ansible.builtin.import_playbook: playbooks/playbook-zabbix-server-v70-part-2.yaml
-- ansible.builtin.import_playbook: playbooks/task-add-grafana.yaml
-- ansible.builtin.import_playbook: playbooks/task-add-certbot.yaml
+- name: Server deploy
+  ansible.builtin.import_playbook:
+    - playbooks/task-add-locale-en-US.yaml
+    - playbooks/playbook-ipsec-server-custom.yaml
+    - playbooks/playbook-zabbix-server-v70-part-1.yaml
+    - playbooks/playbook-zabbix-server-v70-part-2.yaml
+    - playbooks/task-add-grafana.yaml
+    - playbooks/task-add-certbot.yaml
 
