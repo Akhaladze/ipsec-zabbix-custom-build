@@ -42,8 +42,8 @@ jobs:
                 curl -s -X POST https://api.telegram.org/bot$TELEGRAM_BOT/sendMessage \
                     -d chat_id=$TELEGRAM_CHAT_ID \
                     -d text="Successfully built and pushed Docker image for branch: $GITHUB_REF"
-        runs-on: self-hosted, pi5
 
+        runs-on: self-hosted, pi5
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
