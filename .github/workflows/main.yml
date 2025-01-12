@@ -45,7 +45,7 @@ jobs:
             # Trigger webhook on Portainer
             - name: Trigger webhook
               run: |
-                curl -X POST -H "Content-Type: application/json" $PORTAINER_WEBHOOK_URL_MBIT -d '{"message": "CI workflow completed successfully"}'
+                curl -X POST -H "Content-Type: application/json" ${{ vars.PORTAINER_WEBHOOK_URL_MBIT}}
             
             # Telegram: On success
             - name: Notify success
