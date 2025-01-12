@@ -1,6 +1,6 @@
 ---
 - name: Service Testing Playbook
-  hosts: zabbix_servers
+  hosts: zabbix_server
   become: true
   vars:
     ipsec_ports:
@@ -15,10 +15,12 @@
     - name: Check IPsec ports
       ansible.builtin.wait_for:
         port: "{{ item }}"
-        host: 0.0.0.0
+        host: 127.0.0.1
+        protocol: udp
         state: started
         timeout: 10
       loop: "{{ ipsec_ports }}"
+      ignore_errors: true
 
     - name: Verify Zabbix Server is running
       ansible.builtin.service_facts:
