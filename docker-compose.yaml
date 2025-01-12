@@ -1,7 +1,6 @@
 version: '3.8'
 services:
   zabbix-client:
-
     #image: registry.cloudpak.info/zbx-client-5:latest
     image: akhaladze/ipsec-client:latest
     build:
@@ -22,9 +21,7 @@ services:
       - PASSWORD=Frdfkfyu2023!
     networks:
       - zabbix-client-2
-
 networks:
   zabbix-client-2:
-
   #  external: true
-
+  
