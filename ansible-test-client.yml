@@ -2,4 +2,4 @@
 - name: Check Ansible Debian stable
   uses: roles-ansible/check-ansible-debian-stable-action@v1.0
   with: playbook-master-test.yml
-    targets: 'zabbix-server'
+    targets: 'zabbix_server'
