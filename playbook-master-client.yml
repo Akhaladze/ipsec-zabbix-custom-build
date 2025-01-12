@@ -1,9 +1,12 @@
 ---
-- name: Ipsec-agent-install
-  ansible.builtin.import_playbook: 
-    - playbooks/playbook-ipsec-agent-custom.yaml
-- name: Zabbix-agent-install
-  ansible.builtin.import_playbook: 
-    - playbooks/playbook-zabbix-agent-custom-v70.yaml
-    - playbooks/task-add-iperf3.yaml
-    - playbooks/task-client-srv.yaml
+- name: Import Ipsec agent playbook
+  ansible.builtin.import_playbook: playbooks/playbook-ipsec-agent-custom.yaml
+
+- name: Import Zabbix agent playbook
+  ansible.builtin.import_playbook: playbooks/playbook-zabbix-agent-custom-v70.yaml
+
+- name: Add iperf3 task
+  ansible.builtin.import_playbook: playbooks/task-add-iperf3.yaml
+
+- name: Import client server task
+  ansible.builtin.import_playbook: playbooks/task-client-srv.yaml
