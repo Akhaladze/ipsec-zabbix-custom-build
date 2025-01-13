@@ -7,3 +7,4 @@ collections:
   - name: community.zabbix
   - name: community.postgresql
   - name: ansible.posix
+  - name: ansible.netcommon
