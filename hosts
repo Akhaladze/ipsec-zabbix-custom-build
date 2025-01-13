@@ -10,7 +10,6 @@ zabbix_server ansible_host=66.135.8.5 ansible_port=22 ansible_user=gnet ansible_
 
 
 [zabbix_agents]
-
 client-1 	ansible_host=10.10.100.24    	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
 #client-2	ansible_host=192.168.102.202     ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
 #client-3	ansible_host=10.50.10.3     ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!

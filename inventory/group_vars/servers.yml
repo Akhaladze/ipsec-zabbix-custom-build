@@ -1,3 +1,27 @@
 ---
-http_port: 80
-app_version: "1.0.0"
+zabbix-server:
+  service_name: nginx, zabbix-server, zabbix-agent, grafana-server, certbot, ipsec, ufw
+  tags: zabbix-server, zabbix-server-part-1, zabbix-server-part-2, grafana, certbot, ipsec, ufw
+  ports: 22, 80, 443, 10050, 10051, 3000, 500, 4500
+  config_files:
+    - /etc/ipsec.conf
+    - /etc/ipsec.secrets
+    #- /etc/ufw/before.rules
+    - /etc/zabbix/zabbix_server.conf
+    - /etc/zabbix/zabbix_agentd.conf
+    - /etc/nginx/sites-available/zabbix_grafana.conf
+    - /etc/nginx/conf.d/zabbix.conf
+    - /etc/grafana/grafana.ini
+  
+
+zabbix-agent:
+  pi_node:
+    service_name: zabbix-agent,ipsec, ufw, ssh
+    tags: zabbix-agent, ipsec, ufw, ssh
+    ports: 22, 10050, 4500, 500, 4500
+    config_files:
+      - /etc/zabbix/zabbix_agentd.conf: [Server, ServerActive, Hostname, HosnameItem]
+      - /etc/ipsec.conf: [conn, left, right, auto, authby, type, keyexchange, ike, esp, ikelifetime, keylife, rekey, keyingtries, dpdaction, dpddelay]
+      #- /etc/ufw/before.rules
+      - /etc/ssh/sshd_config : [Port, PermitRootLogin, PasswordAuthentication, PermitEmptyPasswords]
+

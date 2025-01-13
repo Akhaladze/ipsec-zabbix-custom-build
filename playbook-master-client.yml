@@ -1,12 +1,16 @@
 ---
 - name: Import Ipsec agent playbook
   ansible.builtin.import_playbook: playbooks/playbook-ipsec-agent-custom.yaml
+  tags: ipsec
 
 - name: Import Zabbix agent playbook
   ansible.builtin.import_playbook: playbooks/playbook-zabbix-agent-custom-v70.yaml
+  tags: zabbix-agent
 
 - name: Add iperf3 task
-  ansible.builtin.import_playbook: playbooks/task-add-iperf3.yaml
+  ansible.builtin.import_playbook: playbooks/tasks/task-add-iperf3.yaml
+  tags: iperf3
 
 - name: Import client server task
-  ansible.builtin.import_playbook: playbooks/task-client-srv.yaml
+  ansible.builtin.import_playbook: playbooks/tasks/task-client-srv.yaml
+  tags: configure
