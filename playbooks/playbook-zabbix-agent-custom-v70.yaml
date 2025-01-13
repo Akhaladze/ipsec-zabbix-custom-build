@@ -42,19 +42,19 @@
       lineinfile:
         path: /etc/zabbix/zabbix_agentd.conf
         regexp: '^Server='
-        line: 'Server={{ server_ip_nat }}'
+        line: 'Server={{ server_ip }}'
 
     - name: Set ServerActive parameter in Zabbix agent config
       lineinfile:
         path: /etc/zabbix/zabbix_agentd.conf
         regexp: '^# ServerActive='
-        line: 'ServerActive={{ server_ip_nat }}'
+        line: 'ServerActive={{ server_ip }}'
 
     - name: Configure Zabbix agent Hostname with MAC address
       lineinfile:
         path: /etc/zabbix/zabbix_agentd.conf
         regexp: '^Hostname='
-        line: 'Hostname=client-{{ client_mac }}'
+        line: 'Hostname=node-{{ client_mac }}'
 
     - name: Restart Zabbix agent
       service:
@@ -67,14 +67,14 @@
       shell: 'ps -p 1 -o comm='
       register: init_system
 
-    - name: Ensure IPSEC is enabled (systemd)
-      service:
-        name: ipsec
-        state: restarted
-      when: init_system.stdout == "systemd"
+    #- name: Ensure IPSEC is enabled (systemd)
+    #  service:
+    #    name: ipsec
+    #    state: restarted
+    #  when: init_system.stdout == "systemd"
 
     - name: Ensure IPSEC is enabled (SysVinit)
-      command: service ipsec restart
+      shell: 'ipsec restart || true'
       when: init_system.stdout != "systemd"
       ignore_errors: true
       
