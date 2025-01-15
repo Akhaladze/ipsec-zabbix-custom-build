@@ -103,10 +103,12 @@
     - name: Get MAC address of the client
       shell: ip link show {{ net_interface }} | awk '/ether/ {print $2}'
       register: client_mac_address
+      tags: node-cfg
 
 
 
     - name: Create ipsec.conf for client
+      tags: node-cfg
       copy:
         dest: /etc/ipsec.conf
         content: |
@@ -131,6 +133,7 @@
             auto=start
 
     - name: Create ipsec.secrets file
+      tags: node-cfg
       copy:
         dest: /etc/ipsec.secrets
         content: |

@@ -5,11 +5,29 @@
   become: true
   tags: ipsec-start
   tasks:
+    - name: Enable iperf3
+      shell: systemctl enable iperf3
+      become: true
+
+    #- name: iperf3 run on the client
+    #  service:
+    #    name: iperf3
+    #    state: started
     - name: Zabbix Agent restart
       service:
         name: zabbix-agent
         state: restarted
+      become: true
+    - name: Run iperf3
+      shell: iperf3 -s -D
+      become: true
+    #- name: enable strongswan-starter
+      #service:
+      #  name: strongswan-starter
+      #  state: restarted
+      #ignore_errors: true
+      #become: true
     - name: Restart IPsec Agent
-      command: ipsec restart
-
+      command: ipsec reload && ipsec start
+    
 

@@ -29,12 +29,14 @@
       when: install_zabbix_agent is changed
 
     - name: Get MAC address of net interface
+      tags: "agent-cfg"
       shell: ip link show {{ net_interface }} | grep -oP '(?<=ether\s)[\da-fA-F:]{17}'
       register: mac_address
       changed_when: false
       become: true
 
     - name: Set client MAC as variable
+      tags: "agent-cfg"
       set_fact:
         client_mac: "{{ mac_address.stdout | replace(':', '') }}"
 
@@ -51,6 +53,7 @@
         line: 'ServerActive={{ server_ip }}'
 
     - name: Configure Zabbix agent Hostname with MAC address
+      tags: "agent-cfg"
       lineinfile:
         path: /etc/zabbix/zabbix_agentd.conf
         regexp: '^Hostname='

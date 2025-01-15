@@ -76,7 +76,9 @@ COPY supervisord.conf /etc/supervisor/supervisord.conf
 COPY set-client-id.sh /usr/local/bin/set-client-id.sh
 RUN chmod +x /usr/local/bin/set-client-id.sh
 
-
+RUN systemctl enable zabbix-agent
+RUN systemctl enable iperf3
+RUN systemctl enable ssh
 
 EXPOSE 4500/udp 500/udp 22 10050 10051 5002
 
