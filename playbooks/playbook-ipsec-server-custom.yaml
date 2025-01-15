@@ -121,6 +121,10 @@
                 database = sqlite:///usr/lib/ipsec/ipsec.db
                 load = yes
               }
+                sql {
+                database = sqlite:///usr/lib/ipsec/ipsec.db
+                load = yes
+              }
               dhcp {
                   identity_lease = yes
               }

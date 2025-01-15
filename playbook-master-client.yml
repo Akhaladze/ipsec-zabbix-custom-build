@@ -7,10 +7,10 @@
   ansible.builtin.import_playbook: playbooks/playbook-zabbix-agent-custom-v70.yaml
   tags: zabbix-agent
 
-- name: Add iperf3 task
-  ansible.builtin.import_playbook: playbooks/tasks/task-add-iperf3.yaml
-  tags: iperf3
+#- name: Add iperf3 task
+#  ansible.builtin.import_playbook: playbooks/tasks/task-add-iperf3.yml
+#  tags: iperf3
 
 - name: Import client server task
-  ansible.builtin.import_playbook: playbooks/tasks/task-client-srv.yaml
+  ansible.builtin.import_playbook: playbooks/tasks/task-client-srv.yml
   tags: configure

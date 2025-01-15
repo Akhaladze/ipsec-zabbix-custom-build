@@ -10,17 +10,19 @@ zabbix_server ansible_host=66.135.8.5 ansible_port=22 ansible_user=gnet ansible_
 
 
 [zabbix_agents]
-client-1 	ansible_host=10.10.100.24    	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-2	ansible_host=192.168.102.202     ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-3	ansible_host=10.50.10.3     ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-4	ansible_host=10.50.10.4     ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-5	ansible_host=10.50.10.5 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-6	ansible_host=10.50.10.6 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-7	ansible_host=10.50.10.7 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-8	ansible_host=10.50.10.8 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-9	ansible_host=10.50.10.9 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-10	ansible_host=10.50.10.10 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-11	ansible_host=10.50.10.11 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+
+
+#client-1 	ansible_host=172.20.0.131   ansible_user=gnet	 ansible_become_password=Frdfkfyu2023! 
+#client-2	ansible_host=172.20.0.132   ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-3	ansible_host=172.20.0.133   ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-4	ansible_host=172.20.0.134   ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-5	ansible_host=172.20.0.134	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+client-6	ansible_host=172.20.0.134	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+client-7	ansible_host=172.20.0.134	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+client-8	ansible_host=172.20.0.134	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+client-9	ansible_host=172.20.0.134	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+client-10	ansible_host=172.20.0.134	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+#client-11	ansible_172.20.0.134    	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
 #client-12	ansible_host=10.50.10.12 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
 #client-13	ansible_host=10.50.10.13 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
 #client-14	ansible_host=10.50.10.14 	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!

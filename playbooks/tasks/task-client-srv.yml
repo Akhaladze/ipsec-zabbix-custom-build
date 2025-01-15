@@ -1,8 +1,9 @@
 ---
 - hosts: zabbix_agents
   vars_files:
-    - ./../zabbix-agent.ini
+    - ./../../zabbix-agent.ini
   become: true
+  tags: ipsec-start
   tasks:
     - name: Zabbix Agent restart
       service:

@@ -1,6 +1,6 @@
 - hosts: zabbix_servers
   vars_files:
-    - ./../zabbix-server.ini
+    - ./../../zabbix-server.ini
   become: true
   tasks:
     - name: Install locales package

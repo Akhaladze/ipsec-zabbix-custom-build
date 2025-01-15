@@ -2,7 +2,7 @@
 - hosts: zabbix_servers
   become: true
   vars_files:
-    - ./../zabbix-server.ini
+    - ./../../zabbix-server.ini
   tags:
     - nginx
     - certbot

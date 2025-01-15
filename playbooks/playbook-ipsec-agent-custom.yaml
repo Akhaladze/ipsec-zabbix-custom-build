@@ -142,7 +142,7 @@
     #  ignore_errors: yes
 
     - name: Run ipsec start
-      command: ipsec start
+      command: ipsec restart
       become: true
       tags: ipsec_start
       ignore_errors: yes

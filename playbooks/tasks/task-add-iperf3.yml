@@ -1,7 +1,7 @@
 ---
 - hosts: zabbix_agents
   vars_files:
-    - ./../zabbix-agent.ini
+    - ./../../zabbix-agent.ini
   become: true
   tasks:
     - name: Install iperf3
