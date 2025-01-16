@@ -1,0 +1,31 @@
+- hosts: test_clients
+  become: yes
+  tasks:
+    - name: Установить iperf3
+      apt:
+        name: iperf3
+        state: present
+      ignore_errors: yes
+
+    - name: Запустить iperf3 как сервис
+      command: nohup iperf3 -s &
+      ignore_errors: yes
+
+- hosts: test_server
+  become: yes
+  tasks:
+    - name: Установить iperf3
+      apt:
+        name: iperf3
+        state: present
+      ignore_errors: yes
+
+    - name: Выполнить тест с клиентами
+      command: iperf3 -c {{ item }} -t 600 -i 10 -R -u -b 2M
+      loop: "{{ groups['test_clients'] }}"
+      register: iperf_results
+
+    - name: Сохранить результаты тестирования
+      copy:
+        content: "{{ iperf_results }}"
+        dest: /path/to/iperf_results.log

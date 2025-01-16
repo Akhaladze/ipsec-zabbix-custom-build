@@ -206,3 +206,15 @@ client-190 ansible_host=10.10.30.190 ansible_user=gnet ansible_become_password=F
 client-191 ansible_host=10.10.30.191 ansible_user=gnet ansible_become_password=Frdfkfyu2023!
 client-192 ansible_host=10.10.30.192 ansible_user=gnet ansible_become_password=Frdfkfyu2023!
 client-193 ansible_host=10.10.30.193 ansible_user=gnet ansible_become_password=Frdfkfyu2023!
+
+[test_clients]
+test-client-1 ansible_host=172.16.17.14
+test-client-2 ansible_host=172.16.17.15
+test-client-3 ansible_host=172.16.17.16
+test-client-4 ansible_host=172.16.17.17
+test-client-5 ansible_host=172.16.17.18
+test-client-6 ansible_host=172.16.17.19
+test-client-7 ansible_host=172.16.17.20
+test-client-8 ansible_host=172.16.17.21
+test-client-9 ansible_host=172.16.17.22
+test-client-10 ansible_host=172.16.17.23
