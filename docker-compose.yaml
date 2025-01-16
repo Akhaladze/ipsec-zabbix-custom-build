@@ -13,8 +13,7 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-    #ports:
-    #  - "2222:22"
+  # ports:
     environment:
       - DOCKER_BUILDKIT=1
       - USERNAME=gnet
@@ -23,5 +22,4 @@ services:
       - zabbix-client-2
 networks:
   zabbix-client-2:
-  #  external: true
-  
+  # external: true
