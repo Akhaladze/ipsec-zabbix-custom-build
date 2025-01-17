@@ -218,3 +218,6 @@ test-client-7 ansible_host=172.16.17.20
 test-client-8 ansible_host=172.16.17.21
 test-client-9 ansible_host=172.16.17.22
 test-client-10 ansible_host=172.16.17.23
+
+[test_server]
+vnp global ansible_host=localhost

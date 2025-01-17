@@ -1,31 +1,85 @@
-- hosts: test_clients
+- hosts: localhost
   become: yes
+  vars:
+    client_list: ['172.16.17.17',
+              '172.16.17.18',
+              '172.16.17.19',
+              '172.16.17.20',
+              '172.16.17.21',
+              '172.16.17.25',
+              '172.16.17.26',
+              '172.16.17.27',
+              '172.16.17.28',
+              '172.16.17.29',
+              '172.16.17.30',
+              '172.16.17.31',
+              '172.16.17.32',
+              '172.16.17.33',
+              '172.16.17.34',
+              '172.16.17.35',
+              '172.16.17.36',
+              '172.16.17.37',
+              '172.16.17.38',
+              '172.16.17.39',
+              '172.16.17.40',
+              '172.16.17.41',
+              '172.16.17.42',
+              '172.16.17.43',
+              '172.16.17.44',
+              '172.16.17.45',
+              '172.16.17.46',
+              '172.16.17.47',
+              '172.16.17.48',
+              '172.16.17.49',
+              '172.16.17.50',
+              '172.16.17.51',
+              '172.16.17.52',
+              '172.16.17.53',
+              '172.16.17.54',
+              '172.16.17.55',
+              '172.16.17.56',
+              '172.16.17.57',
+              '172.16.17.58',
+              '172.16.17.59',
+              '172.16.17.60',
+              '172.16.17.61',
+              '172.16.17.62',
+              '172.16.17.63',
+              '172.16.17.64',
+              '172.16.17.65',
+              '172.16.17.66',
+              '172.16.17.67',
+              '172.16.17.68']
+    test_bandwidth: 2M
+    test_duration: 600
+    num_threads: 1200
   tasks:
-    - name: Установить iperf3
-      apt:
-        name: iperf3
-        state: present
-      ignore_errors: yes
+    - name: Одновременный запуск тестов
+      command: >
+        iperf3 -c {{ item }} -t {{ test_duration }} -i 10 -R -u -b {{ test_bandwidth }}
+      with_items: "{{ client_list }}"
+      async: "{{ num_threads }}"
+      poll: 0
+      register: test_results
 
-    - name: Запустить iperf3 как сервис
-      command: nohup iperf3 -s &
-      ignore_errors: yes
+    - name: Ожидание завершения тестов
+      async_status:
+        jid: "{{ item.ansible_job_id }}"
+      register: job_status
+      until: job_status.finished
+      retries: 25
+      delay: 30
+      with_items: "{{ test_results.results }}"
+      when: item.finished == 0
 
-- hosts: test_server
-  become: yes
-  tasks:
-    - name: Установить iperf3
-      apt:
-        name: iperf3
-        state: present
-      ignore_errors: yes
-
-    - name: Выполнить тест с клиентами
-      command: iperf3 -c {{ item }} -t 600 -i 10 -R -u -b 2M
-      loop: "{{ groups['test_clients'] }}"
-      register: iperf_results
-
-    - name: Сохранить результаты тестирования
+    - name: Сохранить результаты тестов
       copy:
-        content: "{{ iperf_results }}"
-        dest: /path/to/iperf_results.log
+        content: >
+          {{
+            job_status.results
+            | selectattr('finished', 'equalto', 1)
+            | map(attribute='stdout')
+            | reject('equalto', None)
+            | join('\n')
+          }}
+        dest: /root/iperf_results.log

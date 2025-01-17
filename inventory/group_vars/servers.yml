@@ -20,8 +20,11 @@ zabbix-agent:
     tags: zabbix-agent, ipsec, ufw, ssh
     ports: 22, 10050, 4500, 500, 4500
     config_files:
-      - /etc/zabbix/zabbix_agentd.conf: [Server, ServerActive, Hostname, HosnameItem]
+      - /etc/zabbix/zabbix_agentd.conf: [Server, ServerActive, Hostname, HostnameItem]
       - /etc/ipsec.conf: [conn, left, right, auto, authby, type, keyexchange, ike, esp, ikelifetime, keylife, rekey, keyingtries, dpdaction, dpddelay]
       #- /etc/ufw/before.rules
       - /etc/ssh/sshd_config : [Port, PermitRootLogin, PasswordAuthentication, PermitEmptyPasswords]
+
+test_clients:
+  []
 
