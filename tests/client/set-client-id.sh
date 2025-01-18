@@ -21,7 +21,7 @@ fi
 
 # Step 2: Get the MAC address of the interface
 MAC=$(cat /sys/class/net/$FOUND_INTERFACE/address | tr '[:lower:]' '[:upper:]' | sed 's/:/-/g')
-NODE_NAME="node-t-$MAC"
+NODE_NAME="node-$MAC"
 
 # Step 3: Update /etc/ipsec.conf
 IPSEC_CONF="/etc/ipsec.conf"

@@ -100,9 +100,9 @@
     
     - name: Create ipsec.db
       shell: |
-        sqlite3 /usr/lib/ipsec/ipsec.db < /usr/share/strongswan/templates/database/sql/sqlite.sql && \
-        chown root:root /usr/lib/ipsec/ipsec.db && \
-        chmod 777 /usr/lib/ipsec/ipsec.db
+        sqlite3 /etc/strongswan.d/dhcp-pool.db < /usr/share/strongswan/templates/database/sql/sqlite.sql && \
+        chown root:root /etc/strongswan.d/dhcp-pool.db && \
+        chmod 777 /etc/strongswan.d/dhcp-pool.db
 
     - name: Update /etc/strongswan.conf
       copy:
