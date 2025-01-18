@@ -38,7 +38,7 @@
     - name: Set client MAC as variable
       tags: "agent-cfg"
       set_fact:
-        client_mac: "{{ mac_address.stdout | replace(':', '') }}"
+        client_mac: "{{ mac_address.stdout | replace(':', '-') }}"
 
     - name: Configure Zabbix server IP in agent config
       lineinfile:
@@ -49,7 +49,7 @@
     - name: Set ServerActive parameter in Zabbix agent config
       lineinfile:
         path: /etc/zabbix/zabbix_agentd.conf
-        regexp: '^# ServerActive='
+        regexp: '^#ServerActive='
         line: 'ServerActive={{ server_ip }}'
 
     - name: Configure Zabbix agent Hostname with MAC address
@@ -58,6 +58,7 @@
         path: /etc/zabbix/zabbix_agentd.conf
         regexp: '^Hostname='
         line: 'Hostname=node-{{ client_mac }}'
+
 
     - name: Restart Zabbix agent
       service:

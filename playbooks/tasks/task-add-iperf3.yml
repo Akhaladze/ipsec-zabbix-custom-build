@@ -9,24 +9,26 @@
         name: iperf3
         state: present
         update_cache: yes
+    - name: Enable iperf service
+      command: systemctl enable iperf3 
 
-    - name: Ping the iperf3 server
-      ping:
-        data: "Checking server connectivity"
-      register: ping_result
+  #  - name: Ping the iperf3 server
+  #    ping:
+  #      data: "Checking server connectivity"
+  #    register: ping_result
 
-    - name: Fail if server is not reachable
-      fail:
-        msg: "iperf3 server is not reachable!"
-      when: ping_result.failed
-
-
-    - name: Run iperf3 traffic test
-      command: iperf3 -c {{ iperf_server_ip }} -n 100M
-      register: iperf_result
-      become: true
+  #  - name: Fail if server is not reachable
+  #    fail:
+  #      msg: "iperf3 server is not reachable!"
+  #    when: ping_result.failed
 
 
-    - name: Display iperf3 results
-      debug:
-        msg: "{{ iperf_result.stdout }}"
+  #  - name: Run iperf3 traffic test
+  #    command: iperf3 -c {{ iperf_server_ip }} -n 100M
+  #    register: iperf_result
+  #    become: true
+
+
+  #  - name: Display iperf3 results
+  #    debug:
+  #      msg: "{{ iperf_result.stdout }}"
