@@ -74,7 +74,7 @@ COPY zabbix_agent.conf /etc/zabbix/zabbix_agentd.conf
 COPY ipsec.* /etc/
 COPY supervisord.conf /etc/supervisor/supervisord.conf
 COPY set-client-id.sh /usr/local/bin/set-client-id.sh
-COPY strongswan.service /etc/systemd/system/strongswan.service
+COPY strongswan.service /etc/systemd/system/strongswan-starter.service
 RUN chmod +x /usr/local/bin/set-client-id.sh
 
 RUN systemctl enable zabbix-agent
