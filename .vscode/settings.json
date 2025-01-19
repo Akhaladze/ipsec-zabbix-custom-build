@@ -1,5 +1,5 @@
 {
-    "ansible.python.interpreterPath": "/data/ANSIBLE/ipsec-zabbix-custom-build/.venv/bin/python3.13",
+    "ansible.python.interpreterPath": "/root/conf/ipsec-zabbix-custom-build/venv/bin/python",
     "cSpell.words": [
         "actionid"
     ],

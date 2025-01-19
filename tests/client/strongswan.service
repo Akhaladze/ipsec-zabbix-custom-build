@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 ExecStart=/usr/libexec/ipsec/starter --nofork
-ExecStop=/usr/libexec/ipsec/starter stop
-ExecReload=/usr/libexec/ipsec/starter reload
+ExecStop=/usr/libexec/ipsec/ipsec stop
+ExecReload=/usr/libexec/ipsec/ipsec reload
 Type=forking
 Restart=on-failure
 

@@ -1,0 +1,31 @@
+Jan 18 16:28:11 guest ipsec[935592]: 14[ENC] parsed INFORMATIONAL response 40 [ ]
+Jan 18 16:28:11 guest ipsec[935592]: 11[NET] received packet: from 193.201.217.126[4500] to 66.135.8.5[4500] (1380 bytes)
+Jan 18 16:28:11 guest ipsec[935592]: 11[ENC] parsed IKE_SA_INIT request 0 [ SA KE No N(NATD_S_IP) N(NATD_D_IP) N(FRAG_SUP) N(HASH_ALG) N(REDIR_SUP) ]
+Jan 18 16:28:11 guest ipsec[935592]: 11[IKE] 193.201.217.126 is initiating an IKE_SA
+Jan 18 16:28:11 guest ipsec[935592]: 11[CFG] selected proposal: IKE:AES_CBC_256/HMAC_SHA2_256_128/PRF_HMAC_SHA2_256/MODP_3072
+Jan 18 16:28:11 guest ipsec[935592]: 11[IKE] remote host is behind NAT
+Jan 18 16:28:11 guest ipsec[935592]: 11[ENC] generating IKE_SA_INIT response 0 [ SA KE No N(NATD_S_IP) N(NATD_D_IP) N(FRAG_SUP) N(HASH_ALG) N(CHDLESS_SUP) N(MULT_AUTH) ]
+Jan 18 16:28:11 guest ipsec[935592]: 11[NET] sending packet: from 66.135.8.5[4500] to 193.201.217.126[4500] (600 bytes)
+Jan 18 16:28:11 guest charon[935592]: 12[ENC] parsed IKE_AUTH request 1 [ IDi IDr AUTH CPRQ(ADDR DNS) SA TSi TSr N(MULT_AUTH) N(EAP_ONLY) N(MSG_ID_SYN_SUP) ]
+Jan 18 16:28:11 guest charon[935592]: 12[CFG] looking for peer configs matching 66.135.8.5[66.135.8.5]...193.201.217.126[node5-d8-3a-dd-be-83-78]
+Jan 18 16:28:11 guest charon[935592]: 12[CFG] selected peer config 'myvpn'
+Jan 18 16:28:11 guest charon[935592]: 12[IKE] authentication of 'node5-d8-3a-dd-be-83-78' with pre-shared key successful
+Jan 18 16:28:11 guest charon[935592]: 12[IKE] authentication of '66.135.8.5' (myself) with pre-shared key
+Jan 18 16:28:11 guest charon[935592]: 12[IKE] schedule delete of duplicate IKE_SA for peer 'node5-d8-3a-dd-be-83-78' due to uniqueness policy and suspected reauthentication
+Jan 18 16:28:11 guest charon[935592]: 12[IKE] peer requested virtual IP 172.16.16.1
+Jan 18 16:28:11 guest charon[935592]: 12[CFG] acquired existing lease for address 172.16.16.12 in pool 'dhcp-pool'
+Jan 18 16:28:11 guest charon[935592]: 12[IKE] assigning virtual IP 172.16.16.12 to peer 'node5-d8-3a-dd-be-83-78'
+Jan 18 16:28:11 guest charon[935592]: 12[IKE] IKE_SA myvpn[21] established between 66.135.8.5[66.135.8.5]...193.201.217.126[node5-d8-3a-dd-be-83-78]
+Jan 18 16:28:11 guest charon[935592]: 12[IKE] IKE_SA myvpn[21] established between 66.135.8.5[66.135.8.5]...193.201.217.126[node5-d8-3a-dd-be-83-78]
+Jan 18 16:28:11 guest charon[935592]: 12[IKE] scheduling reauthentication in 10210s
+Jan 18 16:28:11 guest charon[935592]: 12[IKE] maximum IKE_SA lifetime 10750s
+Jan 18 16:28:11 guest charon[935592]: 12[CFG] selected proposal: ESP:AES_CBC_256/HMAC_SHA2_256_128/NO_EXT_SEQ
+Jan 18 16:28:11 guest charon[935592]: 12[IKE] CHILD_SA myvpn{50} established with SPIs c8c5cc30_i c1985fdf_o and TS 66.135.8.5/32 === 172.16.16.0/22
+Jan 18 16:28:11 guest charon[935592]: 12[IKE] CHILD_SA myvpn{50} established with SPIs c8c5cc30_i c1985fdf_o and TS 66.135.8.5/32 === 172.16.16.0/22
+Jan 18 16:28:11 guest charon[935592]: 12[ENC] generating IKE_AUTH response 1 [ IDr AUTH CPRP(ADDR) SA TSi TSr N(AUTH_LFT) ]
+Jan 18 16:28:11 guest charon[935592]: 12[NET] sending packet: from 66.135.8.5[4500] to 193.201.217.126[4500] (240 bytes)
+Jan 18 16:28:11 guest charon[935592]: 05[NET] received packet: from 193.201.217.126[4500] to 66.135.8.5[4500] (80 bytes)
+Jan 18 16:28:11 guest charon[935592]: 05[ENC] parsed INFORMATIONAL request 150 [ D ]
+Jan 18 16:28:11 guest charon[935592]: 05[IKE] received DELETE for IKE_SA myvpn[1]
+Jan 18 16:28:11 guest charon[935592]: 05[IKE] deleting IKE_SA myvpn[1] between 66.135.8.5[66.135.8.5]...193.201.217.126[node5-d8-3a-dd-be-83-78]
+Jan 18 16:28:11 guest charon[935592]: 05[IKE] deleting IKE_SA myvpn[1] between 66.135.8.5[66.135.8.5]...193.201.217.126[node5-d8-3a-dd-be-83-78]
