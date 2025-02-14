@@ -53,6 +53,7 @@
           - dh-make
           - libmysqlclient-dev
           - libmysqlcppconn-dev
+          
 
     - name: Download StrongSwan source package
       get_url:
@@ -70,6 +71,7 @@
         ./configure --prefix=/usr --sysconfdir=/etc --libexecdir=/usr/libexec --with-systemdsystemunitdir=/usr/lib/systemd/system \
             --enable-sql \
             --enable-sqlite \
+            --enable-mysql \
             --enable-attr-sql \
             --enable-systemd \
             --enable-sha1 \
@@ -97,8 +99,14 @@
         make && make install
       args:
         chdir: "~/strongswan-{{ IPSEC_VER }}"
-    
-    - name: Create ipsec.db
+    - name: Create sqlite db
+      tags: [install, sqlite]
+      shell: |
+        sqlite3 /usr/lib/ipsec/ipsec.db < /usr/share/strongswan/templates/database/sql/sqlite.sql && \
+        chown root:root /usr/lib/ipsec/ipsec.db && \
+        chmod 777 /usr/lib/ipsec/ipsec.db
+    - name: Create mysql db
+      tags: [install, mysql]  
       shell: |
         sqlite3 /etc/strongswan.d/dhcp-pool.db < /usr/share/strongswan/templates/database/sql/sqlite.sql && \
         chown root:root /etc/strongswan.d/dhcp-pool.db && \
@@ -109,7 +117,7 @@
         dest: "/etc/strongswan.conf"
         content: |
           charon {
-            load = random nonce openssl pem pkcs1 curl revocation stroke sql dhcp sqlite attr-sql kernel-netlink socket-default updown
+            load = random nonce openssl pem pkcs1 curl revocation stroke sql dhcp mysql sqlite attr-sql kernel-netlink socket-default updown
 
             plugins {
               attr-sql {
@@ -148,8 +156,8 @@
             keyexchange=ikev2
             authby=psk
             dpdaction=restart
-            dpddelay=15s
-            dpdtimeout=60s
+            dpddelay=3s
+            dpdtimeout=9s
 
 
           conn myvpn
@@ -225,12 +233,12 @@
         mode: 0644
       ignore_errors: true
 
-    - name: Enable strongSwan service
-      service:
-        name: strongswan
-        state: started
-        enabled: yes
-      ignore_errors: true
+    #- name: Enable strongSwan service
+    #  service:
+    #    name: strongswan
+    #    state: started
+    #    enabled: yes
+    #  ignore_errors: true
     
     - name: Enable strongSwan starter service
       service:
