@@ -19,42 +19,40 @@
         name: "{{ item }}"
         state: present
       loop:
-          - astyle
-          - iptables
-          - cmake
-          - gcc
-          - ninja-build
-          - libssl-dev
-          - python3-pytest-xdist
-          - unzip
-          - xsltproc
-          - doxygen
-          - graphviz
-          - python3-yaml
-          - valgrind
-          - openssl
-          - curl
-          - mc
-          - nmap
-          - net-tools
-          - git
-          - wget
-          - libsqlite3-dev
-          - sqlite3
-          - pkg-config
-          - build-essential
-          - libgmp-dev
-          - libcurl4-openssl-dev
-          - libsystemd-dev
-          - libgcrypt20-dev
-          - libip4tc-dev
-          - debhelper
-          - devscripts
-          - dh-make
-          - libmysqlclient-dev
-          - libmysqlcppconn-dev
-          
-
+        - astyle
+        - iptables
+        - cmake
+        - gcc
+        - ninja-build
+        - libssl-dev
+        - python3-pytest-xdist
+        - unzip
+        - xsltproc
+        - doxygen
+        - graphviz
+        - python3-yaml
+        - valgrind
+        - openssl
+        - curl
+        - mc
+        - nmap
+        - net-tools
+        - git
+        - wget
+        - libsqlite3-dev
+        - sqlite3
+        - pkg-config
+        - build-essential
+        - libgmp-dev
+        - libcurl4-openssl-dev
+        - libsystemd-dev
+        - libgcrypt20-dev
+        - libip4tc-dev
+        - debhelper
+        - devscripts
+        - dh-make
+        - libmysqlclient-dev
+        - libmysqlcppconn-dev
     - name: Download StrongSwan source package
       get_url:
         url: "https://download.strongswan.org/strongswan-{{ IPSEC_VER }}.tar.bz2"
