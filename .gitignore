@@ -1,6 +1,12 @@
 .logs/*
 *.retry
 *.vault
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.log
 collections/*
 !collections/ansible_collections
 !collections/requirements.yml
