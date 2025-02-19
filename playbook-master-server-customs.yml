@@ -1,22 +1,29 @@
 ---
 - name: Server deploy
-  ansible.builtin.import_playbook:
-    - name: Install locale en-US
-      ansible.builtin.import_playbook: playbooks/tasks/task-add-locale-en-US.yaml
-      tags: locale
-    - name: Import Ipsec server playbook
-      ansible.builtin.import_playbook: playbooks/playbook-ipsec-server-custom.yaml
-      tags: ipsec
-    - name: Import Zabbix server playbook
-      ansible.builtin.import_playbook: playbooks/playbook-zabbix-server-v70-part-1.yaml
-      tags: zabbix-server, zabbix-server-part-1
-    - name: Import Zabbix server playbook
-      ansible.builtin.import_playbook: playbooks/playbook-zabbix-server-v70-part-2.yaml
-      tags: zabbix-server, zabbix-server-part-2
-    - name: Install Grafana
-      ansible.builtin.import_playbook: playbooks/tasks/task-add-grafana.yaml
-      tags: grafana
-    - name: Install Certbot
-      ansible.builtin.import_playbook: playbooks/tasks/task-add-certbot.yaml
-      tags: certbot
-      
+  hosts: zabbix_servers
+  gather_facts: false
+  tasks: []
+
+- name: Install locale en-US
+  import_playbook: playbooks/tasks/task-add-locale-en-US.yml
+  tags: locale
+
+- name: Import IPsec server playbook
+  import_playbook: playbooks/playbook-ipsec-server-custom.yaml
+  tags: ipsec
+
+- name: Import Zabbix server playbook (Part 1)
+  import_playbook: playbooks/playbook-zabbix-server-v70-part-1.yaml
+  tags: zabbix-server, zabbix-server-part-1
+
+- name: Import Zabbix server playbook (Part 2)
+  import_playbook: playbooks/playbook-zabbix-server-v70-part-2.yaml
+  tags: zabbix-server, zabbix-server-part-2
+
+- name: Install Grafana
+  import_playbook: playbooks/tasks/task-add-grafana.yml
+  tags: grafana
+
+- name: Install Certbot
+  import_playbook: playbooks/tasks/task-add-certbot.yml
+  tags: certbot

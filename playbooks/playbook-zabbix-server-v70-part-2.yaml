@@ -234,7 +234,7 @@
       tags: add-template
 
     - name: Add discovery rule
-      ansible.builtin.import_tasks: task-add-discovery-rule.yml
+      ansible.builtin.import_tasks: tasks/task-add-discovery-rule.yml
       ignore_errors: true
       tags: add-template
     

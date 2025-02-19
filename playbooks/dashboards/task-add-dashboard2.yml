@@ -424,6 +424,6 @@
               ]
           }
       }
-    owner: {{ user }}
-    group: {{ user }}
+    owner: nobody
+    group: nogroup
     mode: '0777'

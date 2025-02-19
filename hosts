@@ -1,5 +1,6 @@
 [zabbix_servers]
-zabbix_server ansible_host=66.135.8.5 ansible_port=22 ansible_user=gnet ansible_become_password=Frdfkfyu2023!
+zabbix_server ansible_host=10.10.100.18 ansible_port=22 ansible_user=gnet ansible_become_password=Frdfkfyu2023!
+#zabbix_server ansible_host=66.135.8.5 ansible_port=22 ansible_user=gnet ansible_become_password=Frdfkfyu2023!
 #zabbix_host_nat ansible_host=193.201.217.126 ansible_port=7422 ansible_user=user ansible_become_password=000200!
 #zabbix_host_mbit ansible_host=mbit-de-gw.mbit-consultants.com ansible_port=22 ansible_user=gnet ansible_become_password=Frdfkfyu2023!
 [mikrotik_routers]
@@ -8,33 +9,13 @@ zabbix_server ansible_host=66.135.8.5 ansible_port=22 ansible_user=gnet ansible_
 146.0.80.152 ansible_user=gnet ansible_password=codeX195 ansible_network_os=community.routeros
 
 
-
 [zabbix_agents]
-
 client-pi5  ansible_host=10.10.100.23   ansible_user=gnet ansible_become_password=Frdfkfyu2023!
-#client-1 	ansible_host=172.20.0.131   ansible_user=gnet	 ansible_become_password=Frdfkfyu2023! 
-#client-2	ansible_host=172.20.0.132   ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-3	ansible_host=172.20.0.133   ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-4	ansible_host=172.20.0.134   ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-5	ansible_host=172.20.0.134	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-6	ansible_host=172.20.0.134	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-7	ansible_host=172.20.0.134	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-8	ansible_host=172.20.0.134	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-9	ansible_host=172.20.0.134	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
-#client-10	ansible_host=172.20.0.134	ansible_user=gnet	 ansible_become_password=Frdfkfyu2023!
+
 
 
 [test_clients]
 test-client-1 ansible_host=172.16.17.14
-test-client-2 ansible_host=172.16.17.15
-test-client-3 ansible_host=172.16.17.16
-test-client-4 ansible_host=172.16.17.17
-test-client-5 ansible_host=172.16.17.18
-test-client-6 ansible_host=172.16.17.19
-test-client-7 ansible_host=172.16.17.20
-test-client-8 ansible_host=172.16.17.21
-test-client-9 ansible_host=172.16.17.22
-test-client-10 ansible_host=172.16.17.23
 
 [test_server]
 vnp global ansible_host=localhost
