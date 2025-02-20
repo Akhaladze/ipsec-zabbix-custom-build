@@ -43,7 +43,7 @@
         - nginx
         - php
         - php-mysql
-        - php8.1-fpm
+        - php-fpm
         - snmp
         - php-gd
         - php-xml

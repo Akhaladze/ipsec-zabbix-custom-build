@@ -8,14 +8,15 @@
   tasks:
 
     - name: Modify sudoers file to allow NOPASSWD for all
+      become: true
       lineinfile:
         path: /etc/sudoers
         regexp: '^%sudo ALL=\(ALL:ALL\) ALL$'
         line: '%sudo ALL=(ALL:ALL) NOPASSWD: ALL'
 
     - name: Update system packages
-      apt:
-        update_cache: yes
+      ansible.builtin.apt:
+        update_cache: true
         name: "{{ item }}"
         state: present
       loop:
@@ -65,7 +66,7 @@
         remote_src: yes
 
     - name: Configure StrongSwan build
-      command: |
+      ansible.builtin.command: |
         ./configure --prefix=/usr --sysconfdir=/etc --libexecdir=/usr/libexec --with-systemdsystemunitdir=/usr/lib/systemd/system \
             --enable-sql \
             --enable-sqlite \
@@ -91,12 +92,14 @@
             --enable-socket-default
       args:
         chdir: "~/strongswan-{{ IPSEC_VER }}"
+        creates: "~/strongswan-{{ IPSEC_VER }}/Makefile"
     
     - name: Build and install StrongSwan
-      shell: |
+      ansible.builtin.shell: |
         make && make install
       args:
         chdir: "~/strongswan-{{ IPSEC_VER }}"
+        creates: "/usr/sbin/ipsec"
     - name: Create sqlite db
       tags: [install, sqlite]
       shell: |
@@ -110,13 +113,12 @@
         chown root:root /etc/strongswan.d/dhcp-pool.db && \
         chmod 777 /etc/strongswan.d/dhcp-pool.db
 
-    - name: Update /etc/strongswan.conf
+    - name: Update strongswan conf
       copy:
         dest: "/etc/strongswan.conf"
         content: |
           charon {
             load = random nonce openssl pem pkcs1 curl revocation stroke sql dhcp mysql sqlite attr-sql kernel-netlink socket-default updown
-
             plugins {
               attr-sql {
                 database = sqlite:///usr/lib/ipsec/ipsec.db
