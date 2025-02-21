@@ -26,6 +26,9 @@ jobs:
           curl -s -X POST https://api.telegram.org/bot${{ vars.TELEGRAM_BOT }}/sendMessage \
               -d chat_id=${{ vars.TELEGRAM_CHAT_ID }} \
               -d text="CI workflow started for branch: $GITHUB_REF"
+          curl -s -X POST https://api.telegram.org/bot${{ vars.TELEGRAM_BOT }}/sendMessage \
+              -d chat_id=${{ vars.TELEGRAM_CHAT_ID }} \
+              -d text="CI workflow started for branch: $GITHUB_REF"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1

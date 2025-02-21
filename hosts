@@ -1,5 +1,5 @@
 [zabbix_servers]
-zabbix_server ansible_host=10.10.100.18 ansible_port=22 ansible_user=gnet ansible_become_password=Frdfkfyu2023!
+zabbix_server ansible_host=146.0.80.152 ansible_port=22 ansible_user=gnet ansible_become_password=Frdfkfyu2023!
 #zabbix_server ansible_host=66.135.8.5 ansible_port=22 ansible_user=gnet ansible_become_password=Frdfkfyu2023!
 #zabbix_host_nat ansible_host=193.201.217.126 ansible_port=7422 ansible_user=user ansible_become_password=000200!
 #zabbix_host_mbit ansible_host=mbit-de-gw.mbit-consultants.com ansible_port=22 ansible_user=gnet ansible_become_password=Frdfkfyu2023!

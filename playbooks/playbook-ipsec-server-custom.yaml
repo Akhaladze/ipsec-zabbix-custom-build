@@ -151,13 +151,18 @@
             charondebug="ike 1, knl 1, net 1, enc 1, cfg 1"
 
           conn %default
-            ike=aes256-sha256-modp3072,aes128-sha256-ecp256
-            esp=aes256-sha256,aes128-sha256
             keyexchange=ikev2
+            ikelifetime=10000d
+            lifetime=10000d
+            rekeymargin=3m
+            keyingtries=%forever
             authby=psk
-            dpdaction=restart
-            dpddelay=3s
-            dpdtimeout=9s
+            mobike=yes                   
+            dpdaction=restart            
+            dpddelay=3s                  
+            dpdtimeout=9s                
+            rekey=yes
+
 
 
           conn myvpn
